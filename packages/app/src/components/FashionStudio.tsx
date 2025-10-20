@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 
 type ConceptResponse = {
   designId: string;
@@ -17,15 +17,8 @@ export default function FashionStudio() {
   const [polling, setPolling] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
+  const API_BASE = (import.meta as any).env?.VITE_API_BASE || 'http://localhost:3001';
 
-  async function uploadFile(file: File) {
-    // get presigned URL from backend (endpoint: /assets/upload-url) or fallback to simple direct upload if server accepts multipart
-    const form = new FormData();
-    form.append('file', file);
-    const res = await fetch(`${API_BASE}/upload`, { method: 'POST', body: form });
-    return res.json(); // expect { url, key } or accept 200 for simplicity
-  }
 
   async function submit() {
     if (!story.trim()) {

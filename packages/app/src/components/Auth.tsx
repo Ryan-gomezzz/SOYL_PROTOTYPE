@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from "amazon-cognito-identity-js";
 
 const poolData = {
-  UserPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || "", // set in env
-  ClientId: import.meta.env.VITE_COGNITO_CLIENT_ID || ""
+  UserPoolId: (import.meta as any).env?.VITE_COGNITO_USER_POOL_ID || "", // set in env
+  ClientId: (import.meta as any).env?.VITE_COGNITO_CLIENT_ID || ""
 };
 const userPool = new CognitoUserPool(poolData);
 
@@ -15,7 +15,7 @@ export default function Auth() {
   const [message, setMessage] = useState("");
 
   function signUp() {
-    userPool.signUp(email, password, [], [], (err, result) => {
+    userPool.signUp(email, password, [], [], (err, _result) => {
       if (err) {
         setMessage(err.message || JSON.stringify(err));
         return;
@@ -27,7 +27,7 @@ export default function Auth() {
 
   function confirm() {
     const user = new CognitoUser({ Username: email, Pool: userPool });
-    user.confirmRegistration(code, true, (err, result) => {
+    user.confirmRegistration(code, true, (err, _result) => {
       if (err) {
         setMessage(err.message || JSON.stringify(err));
         return;
