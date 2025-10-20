@@ -3,6 +3,7 @@ import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-sec
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import crypto from 'crypto';
 
 const REGION = process.env.AWS_REGION || 'us-east-1';
@@ -11,6 +12,7 @@ const SECRETS_NAME_OPENAI = 'SOYL/OPENAI_API_KEY';
 const PERPLEXITY_KEY_ENV = 'PERPLEXITY_API_KEY';
 const DDB_TABLE = process.env.DDB_TABLE || 'SOYL-Designs';
 const S3_BUCKET = process.env.S3_BUCKET || 'soyl-assets';
+const IMAGE_QUEUE_URL = process.env.IMAGE_QUEUE_URL || '';
 const PREVIEW_TTL_SECONDS = 300; // signed URL expiry
 
 // AWS clients
@@ -18,6 +20,7 @@ const secretsClient = new SecretsManagerClient({ region: REGION });
 const s3 = new S3Client({ region: REGION });
 const ddb = new DynamoDBClient({ region: REGION });
 const ddbDoc = DynamoDBDocumentClient.from(ddb);
+const sqs = new SQSClient({ region: REGION });
 
 // Types
 type BriefReq = {
@@ -420,6 +423,24 @@ Do NOT include explanatory text outside JSON. If you cannot produce a design, re
           previewUrl = up.url;
         } catch (err) {
           console.warn('Preview upload failed', (err as any).message);
+        }
+
+        // Send image generation job to SQS
+        if (IMAGE_QUEUE_URL) {
+          try {
+            const imagePrompt = `Generate a high-quality fashion design image for: ${parsed.title}. Style: ${req.options?.style || 'modern'}. Product: ${req.options?.product || 'clothing'}. Colors: ${parsed.palette.join(', ')}.`;
+            await sqs.send(new SendMessageCommand({
+              QueueUrl: IMAGE_QUEUE_URL,
+              MessageBody: JSON.stringify({
+                designId,
+                prompt: imagePrompt,
+                index: 1
+              })
+            }));
+            console.log(`Sent image generation job to SQS for design ${designId}`);
+          } catch (err) {
+            console.warn('Failed to send SQS message', (err as any).message);
+          }
         }
 
         const responseBody = { designId, design: parsed, previewUrl };

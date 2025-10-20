@@ -56,7 +56,7 @@ class SoylStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'image-worker.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, 'dist'), {
-        exclude: ['**', '!image-worker.js']
+        exclude: ['**', '!image-worker.js', '!image-apis.js']
       }),
       memorySize: 2048,
       timeout: cdk.Duration.seconds(900),
