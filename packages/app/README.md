@@ -1,73 +1,108 @@
-# React + TypeScript + Vite
+# SOYL - Story Of Your Life
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A luxury AI fashion design platform that transforms your story into bespoke fashion pieces.
 
-Currently, two official plugins are available:
+## 🚀 Quick Start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Prerequisites
+- Node.js 18+ 
+- pnpm 8+
 
-## React Compiler
+### Installation & Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```cmd
+# Install dependencies
+pnpm install
 
-## Expanding the ESLint configuration
+# Start development server
+pnpm run dev
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Build for production
+pnpm run build
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Preview production build
+pnpm run preview
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Run tests
+pnpm run test
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Lint code
+pnpm run lint
+
+# Format code
+pnpm run format
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Environment Variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create a `.env.local` file:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_BASE=https://8zaa4i3xma.execute-api.ap-south-1.amazonaws.com/prod/
+VITE_COGNITO_USER_POOL_ID=your-cognito-pool-id
+VITE_COGNITO_CLIENT_ID=your-cognito-client-id
 ```
+
+## 🌐 Deployment to Vercel
+
+### Option 1: Vercel Dashboard
+1. Go to [vercel.com](https://vercel.com)
+2. Import `Ryan-gomezzz/SOYL_PROTOTYPE`
+3. Set Root Directory: `packages/app`
+4. Add environment variables
+5. Deploy
+
+### Option 2: Vercel CLI
+```cmd
+# Install Vercel CLI
+npm install -g vercel
+
+# Login and deploy
+vercel login
+vercel --prod
+
+# Set environment variables
+vercel env add VITE_API_BASE
+vercel env add VITE_COGNITO_USER_POOL_ID
+vercel env add VITE_COGNITO_CLIENT_ID
+```
+
+## 🎨 Design System
+
+- **Colors**: Black, White, Gold (#D4AF37), Silver (#C0C0C0), Bronze (#CD7F32)
+- **Typography**: Inter (UI), Playfair Display (Headings)
+- **Framework**: React 18 + TypeScript + Vite + TailwindCSS
+- **Animations**: Framer Motion
+- **Canvas**: Fabric.js
+
+## 📁 Project Structure
+
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Route components
+├── hooks/         # Custom React hooks
+├── lib/           # Utilities and API
+├── styles/        # Global styles
+└── types/         # TypeScript definitions
+```
+
+## 🔧 Development
+
+The app uses:
+- **React Router** for navigation
+- **Zustand** for state management
+- **Framer Motion** for animations
+- **Fabric.js** for canvas interactions
+- **AWS Cognito** for authentication
+- **TailwindCSS** for styling
+
+## 📱 Features
+
+- Luxury design system
+- AI-powered fashion generation
+- Interactive design canvas
+- User authentication
+- Design history dashboard
+- Responsive design
+- Accessibility compliant
