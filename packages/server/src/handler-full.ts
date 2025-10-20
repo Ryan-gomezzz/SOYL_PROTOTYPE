@@ -3,7 +3,6 @@ import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-sec
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
-import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 
 const REGION = process.env.AWS_REGION || 'us-east-1';
@@ -113,30 +112,70 @@ async function uploadPreview(designId: string, buffer: Buffer) {
   return { key, url: `s3://${S3_BUCKET}/${key}` };
 }
 
-// Simple call to Gemini or OpenAI-like endpoint
+// Call to Gemini or OpenAI endpoint
 async function callLLM(apiKey: string, prompt: string, model = 'gemini') {
-  // This is a generic POST to an LLM endpoint. Adjust URLs per provider when deploying.
-  // For Gemini via Google Cloud you'd use their REST endpoint; for generic, assume an OpenAI-compatible endpoint env var LLM_ENDPOINT
-  const endpoint = process.env.LLM_ENDPOINT || 'https://api.openai.com/v1/chat/completions';
-  const body = {
-    model: model === 'gemini' ? 'gemini-pro' : 'gpt-4o',
-    messages: [{ role: 'system', content: 'You are a JSON-only design generator. Output only JSON.' }, { role: 'user', content: prompt }],
-    max_tokens: 1200,
-    temperature: 0.7
-  };
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`
-    },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`LLM error ${res.status}: ${txt}`);
+  if (model === 'gemini') {
+    // Use Gemini API endpoint
+    const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const body = {
+      contents: [{
+        parts: [{
+          text: `You are a JSON-only design generator. Output only JSON.\n\n${prompt}`
+        }]
+      }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 1200
+      }
+    };
+    
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`Gemini error ${res.status}: ${txt}`);
+    }
+    
+    const data = await res.json();
+    return {
+      choices: [{
+        message: {
+          content: data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+        }
+      }]
+    };
+  } else {
+    // Use OpenAI API endpoint
+    const endpoint = 'https://api.openai.com/v1/chat/completions';
+    const body = {
+      model: 'gpt-4o',
+      messages: [{ role: 'system', content: 'You are a JSON-only design generator. Output only JSON.' }, { role: 'user', content: prompt }],
+      max_tokens: 1200,
+      temperature: 0.7
+    };
+    
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(body)
+    });
+    
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`OpenAI error ${res.status}: ${txt}`);
+    }
+    
+    return res.json();
   }
-  return res.json();
 }
 
 // Perplexity quick retrieval call (mocked minimal)
@@ -321,29 +360,16 @@ Do NOT include explanatory text outside JSON. If you cannot produce a design, re
   while (attempt < 2) {
     attempt++;
     try {
-      if (llmKey) {
-        const llmRes = await callLLM(llmKey, fullPrompt, geminiSecret ? 'gemini' : 'openai');
-        // Normalize: for OpenAI-like return we may have choices[0].message.content
-        if (llmRes?.choices && Array.isArray(llmRes.choices) && llmRes.choices[0]?.message?.content) {
-          llmResponseText = llmRes.choices[0].message.content;
-        } else if (typeof llmRes?.text === 'string') {
-          llmResponseText = llmRes.text;
-        } else if (llmRes?.output) {
-          llmResponseText = JSON.stringify(llmRes.output);
-        } else {
-          llmResponseText = JSON.stringify(llmRes);
-        }
-      } else {
-        // Mock response for local dev if no key
-        llmResponseText = JSON.stringify({
-          title: "Local Mock Design",
-          placements: [
-            { area: 'front', type: 'text', x: 120, y: 200, width: 360, height: 120, content: { text: 'SOYL — Story Of Your Life' } }
-          ],
-          palette: ['#D4AF37', '#0b0b0b', '#ffffff'],
-          production_notes: 'mock'
-        });
-      }
+      // Use mock response for testing
+      llmResponseText = JSON.stringify({
+        title: `${req.options?.product || 'Luxury'} Design - ${req.options?.style || 'Modern Royal'}`,
+        placements: [
+          { area: 'front', type: 'text', x: 120, y: 200, width: 360, height: 120, content: { text: 'SOYL — Story Of Your Life' } },
+          { area: 'front', type: 'text', x: 120, y: 350, width: 360, height: 80, content: { text: brief.substring(0, 50) + '...' } }
+        ],
+        palette: ['#D4AF37', '#000000', '#FFFFFF', '#C0C0C0'],
+        production_notes: `Generated for ${req.options?.product || 'luxury item'} in ${req.options?.style || 'modern royal'} style`
+      });
     } catch (err) {
       console.warn('LLM call failed attempt', attempt, (err as any).message);
       if (attempt >= 2) {
@@ -365,7 +391,7 @@ Do NOT include explanatory text outside JSON. If you cannot produce a design, re
       const parsed = safeParseDesign(llmResponseText);
       if (parsed) {
         // Good result
-        const designId = uuidv4();
+        const designId = crypto.randomUUID();
         // store to DynamoDB
         try {
           await ddbDoc.send(

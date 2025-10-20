@@ -3,52 +3,137 @@ import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import crypto from "crypto";
+import { 
+  generateWithGemini, 
+  generateWithOpenAI, 
+  generateWithStability, 
+  generateWithReplicate,
+  generatePlaceholder 
+} from "./image-apis";
 
 const REGION = process.env.AWS_REGION || "ap-south-1";
 const S3_BUCKET = process.env.S3_BUCKET || "soyl-assets-ap-south-1";
 const DDB_TABLE = process.env.DDB_TABLE || "SOYL-Designs";
-const IMAGE_API_ENDPOINT = process.env.IMAGE_API_ENDPOINT || "";
-const IMAGE_API_KEY = process.env.IMAGE_API_KEY || "";
+const IMAGE_PROVIDER = process.env.IMAGE_PROVIDER || "placeholder"; // gemini, openai, stability, replicate, placeholder
 
 const s3 = new S3Client({ region: REGION });
 const ddb = new DynamoDBClient({ region: REGION });
 const ddbDoc = DynamoDBDocumentClient.from(ddb);
+const secretsClient = new SecretsManagerClient({ region: REGION });
 
 function keyFor(designId: string, idx = 1) {
   const suffix = crypto.createHash("sha1").update(designId + ":" + idx).digest("hex").slice(0, 12);
   return `designs/${designId}/sketch-${idx}-${suffix}.png`;
 }
 
-async function generateImageBuffer(prompt: string): Promise<Buffer> {
-  // If no real image API, fall back to placeholder
-  if (!IMAGE_API_ENDPOINT || !IMAGE_API_KEY) {
-    const res = await fetch("https://via.placeholder.com/1200x1400.png?text=SOYL+Preview");
+async function getApiKey(provider: string): Promise<string | null> {
+  try {
+    const secretName = `SOYL/${provider.toUpperCase()}_API_KEY`;
+    const command = new GetSecretValueCommand({ SecretId: secretName });
+    const response = await secretsClient.send(command);
+    return response.SecretString || null;
+  } catch (error) {
+    console.warn(`Failed to get API key for ${provider}:`, error);
+    return null;
+  }
+}
+
+async function generateImageBuffer(prompt: string, designId: string): Promise<Buffer> {
+  console.log(`Generating image with provider: ${IMAGE_PROVIDER}`);
+  
+  try {
+    switch (IMAGE_PROVIDER.toLowerCase()) {
+      case 'gemini': {
+        const apiKey = await getApiKey('gemini');
+        if (!apiKey) {
+          console.warn('No Gemini API key found, falling back to placeholder');
+          return (await generatePlaceholder(prompt, designId)).imageBuffer!;
+        }
+        
+        const result = await generateWithGemini(prompt, apiKey, { width: 1200, height: 1400 });
+        if (result.success && result.imageBuffer) {
+          return result.imageBuffer;
+        }
+        console.warn('Gemini generation failed:', result.error);
+        break;
+      }
+      
+      case 'openai': {
+        const apiKey = await getApiKey('openai');
+        if (!apiKey) {
+          console.warn('No OpenAI API key found, falling back to placeholder');
+          return (await generatePlaceholder(prompt, designId)).imageBuffer!;
+        }
+        
+        const result = await generateWithOpenAI(prompt, apiKey, { 
+          width: 1024, 
+          height: 1024, 
+          quality: 'hd' 
+        });
+        if (result.success && result.imageBuffer) {
+          return result.imageBuffer;
+        }
+        console.warn('OpenAI generation failed:', result.error);
+        break;
+      }
+      
+      case 'stability': {
+        const apiKey = await getApiKey('stability');
+        if (!apiKey) {
+          console.warn('No Stability AI API key found, falling back to placeholder');
+          return (await generatePlaceholder(prompt, designId)).imageBuffer!;
+        }
+        
+        const result = await generateWithStability(prompt, apiKey, { width: 1024, height: 1024 });
+        if (result.success && result.imageBuffer) {
+          return result.imageBuffer;
+        }
+        console.warn('Stability AI generation failed:', result.error);
+        break;
+      }
+      
+      case 'replicate': {
+        const apiKey = await getApiKey('replicate');
+        if (!apiKey) {
+          console.warn('No Replicate API key found, falling back to placeholder');
+          return (await generatePlaceholder(prompt, designId)).imageBuffer!;
+        }
+        
+        const result = await generateWithReplicate(prompt, apiKey, undefined, { width: 1024, height: 1024 });
+        if (result.success && result.imageBuffer) {
+          return result.imageBuffer;
+        }
+        console.warn('Replicate generation failed:', result.error);
+        break;
+      }
+      
+      default: {
+        console.log('Using placeholder image generation');
+        const result = await generatePlaceholder(prompt, designId);
+        if (result.success && result.imageBuffer) {
+          return result.imageBuffer;
+        }
+        throw new Error('Placeholder generation failed');
+      }
+    }
+    
+    // If we get here, all providers failed, use placeholder
+    console.log('All image providers failed, using placeholder');
+    const result = await generatePlaceholder(prompt, designId);
+    if (result.success && result.imageBuffer) {
+      return result.imageBuffer;
+    }
+    throw new Error('All image generation methods failed');
+    
+  } catch (error) {
+    console.error('Image generation error:', error);
+    // Final fallback to basic placeholder
+    const res = await fetch("https://via.placeholder.com/1200x1400/000000/FFFFFF?text=SOYL+Design");
     const ab = await res.arrayBuffer();
     return Buffer.from(ab);
   }
-
-  // Example: generic POST; adapt to your provider (Gemini Image / SDXL)
-  const response = await fetch(IMAGE_API_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${IMAGE_API_KEY}`
-    },
-    body: JSON.stringify({
-      prompt,
-      width: 1200,
-      height: 1400,
-      // provider-specific params (seed, steps, etc.)
-    })
-  });
-
-  if (!response.ok) {
-    const txt = await response.text();
-    throw new Error(`Image API failed ${response.status}: ${txt}`);
-  }
-  const arrayBuf = await response.arrayBuffer();
-  return Buffer.from(arrayBuf);
 }
 
 export const handler: SQSHandler = async (event) => {
@@ -65,7 +150,7 @@ export const handler: SQSHandler = async (event) => {
       }
 
       // Generate image
-      const buf = await generateImageBuffer(prompt);
+      const buf = await generateImageBuffer(prompt, designId);
 
       // Upload to S3
       const Key = keyFor(designId, idx);

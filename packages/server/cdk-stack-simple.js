@@ -37,9 +37,9 @@ class SoylStack extends cdk.Stack {
 
     const handler = new lambda.Function(this, 'SoylHandler', {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'handler-full-working.handler',
+      handler: 'handler-full.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, 'dist'), {
-        exclude: ['**', '!handler-full-working.js']
+        exclude: ['**', '!handler-full.js']
       }),
       memorySize: 1024,
       timeout: cdk.Duration.seconds(30),
@@ -64,8 +64,7 @@ class SoylStack extends cdk.Stack {
       environment: {
         DDB_TABLE: table.tableName,
         S3_BUCKET: bucket.bucketName,
-        IMAGE_API_ENDPOINT: process.env.IMAGE_API_ENDPOINT || '',
-        IMAGE_API_KEY_SECRET_NAME: 'SOYL/IMAGE_API_KEY'
+        IMAGE_PROVIDER: process.env.IMAGE_PROVIDER || 'placeholder'
       }
     });
 
