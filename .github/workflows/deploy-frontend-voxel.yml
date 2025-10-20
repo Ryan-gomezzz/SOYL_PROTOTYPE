@@ -1,0 +1,24 @@
+name: Deploy Frontend to Voxel
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install
+        run: pnpm install
+      - name: Build
+        run: pnpm -C packages/app run build
+      - name: Deploy to Voxel
+        env:
+          VOXEL_TOKEN: ${{ secrets.VOXEL_TOKEN }}
+        run: |
+          npm i -g @voxel/cli || true
+          voxel deploy --token $VOXEL_TOKEN --cwd packages/app

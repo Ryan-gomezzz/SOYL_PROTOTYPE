@@ -1,0 +1,18 @@
+{
+  "name": "soyl-mvp",
+  "private": true,
+  "version": "0.0.1",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "install:all": "pnpm install",
+    "dev:app": "pnpm -C packages/app run dev",
+    "dev:server": "pnpm -C packages/server run start",
+    "dev:all": "concurrently \"pnpm -C packages/server run start\" \"pnpm -C packages/app run dev\"",
+    "tailwind:init-fallback": "node ./tools/tailwind-fallback.js || echo fallback"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
