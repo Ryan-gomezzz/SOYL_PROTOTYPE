@@ -3,6 +3,12 @@
   "buildCommand": "cd packages/app && pnpm run build",
   "outputDirectory": "packages/app/dist",
   "installCommand": "pnpm install",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "env": {
     "VITE_API_BASE": "https://8zaa4i3xma.execute-api.ap-south-1.amazonaws.com/prod"
   }
