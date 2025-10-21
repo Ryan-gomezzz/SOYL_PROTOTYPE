@@ -264,7 +264,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         body: JSON.stringify({
           ready: true,
           design: result.Item.design,
-          previewUrl: result.Item.previewUrl || ''
+          previewUrl: result.Item.previewSignedUrl || ''
         })
       };
     } catch (err) {

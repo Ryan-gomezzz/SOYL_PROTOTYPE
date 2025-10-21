@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm run build",
+  "buildCommand": "cd packages/app && pnpm run build",
   "outputDirectory": "packages/app/dist",
   "installCommand": "pnpm install",
   "env": {
