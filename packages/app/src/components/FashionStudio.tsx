@@ -39,13 +39,21 @@ const FashionStudio = () => {
     async () => {
       if (result?.designId) {
         try {
+          console.log('Polling for design:', result.designId);
           const status = await getConceptStatus(result.designId);
+          console.log('Polling response:', status);
+          
           if (status.ready) {
             setResult(status);
-            setPolling(false);
             if (status.previewUrl) {
+              console.log('✅ Preview URL received:', status.previewUrl);
               setPreviews(prev => [...prev, status.previewUrl!]);
+              setPolling(false);
+            } else {
+              console.log('⚠️ Ready but no preview URL yet, continuing to poll...');
             }
+          } else {
+            console.log('⏳ Not ready yet, continuing to poll...');
           }
         } catch (error) {
           console.error('Error polling status:', error);
