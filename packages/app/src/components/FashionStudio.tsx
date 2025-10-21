@@ -47,7 +47,11 @@ const FashionStudio = () => {
             setResult(status);
             if (status.previewUrl) {
               console.log('✅ Preview URL received:', status.previewUrl);
-              setPreviews(prev => [...prev, status.previewUrl!]);
+              setPreviews(prev => {
+                const newPreviews = [...prev, status.previewUrl!];
+                console.log('Updated previews array:', newPreviews);
+                return newPreviews;
+              });
               setPolling(false);
             } else {
               console.log('⚠️ Ready but no preview URL yet, continuing to poll...');
@@ -237,29 +241,34 @@ const FashionStudio = () => {
         {previews.length > 0 && (
           <div className="card">
             <h3 className="font-serif text-xl font-semibold text-soyl-white mb-4">
-              Generated Previews
+              Generated Previews ({previews.length})
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              {previews.map((preview, index) => (
-                <motion.div
-                  key={index}
-                  className="relative group cursor-pointer"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <img
-                    src={preview}
-                    alt={`Design preview ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg border border-soyl-silver/30"
-                  />
-                  <div className="absolute inset-0 bg-soyl-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                    <button className="btn-primary text-sm px-3 py-1">
-                      View Full
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
+              {previews.map((preview, index) => {
+                console.log(`Rendering preview ${index}:`, preview);
+                return (
+                  <motion.div
+                    key={index}
+                    className="relative group cursor-pointer"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <img
+                      src={preview}
+                      alt={`Design preview ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg border border-soyl-silver/30"
+                      onLoad={() => console.log(`✅ Image ${index} loaded successfully`)}
+                      onError={(e) => console.log(`❌ Image ${index} failed to load:`, e)}
+                    />
+                    <div className="absolute inset-0 bg-soyl-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                      <button className="btn-primary text-sm px-3 py-1">
+                        View Full
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         )}
