@@ -164,46 +164,383 @@
   color: var(--color-primary, #667eea);
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .studio-3d-layout {
-    grid-template-columns: 1fr;
+/* Enhanced 3D Studio Layout - New Design */
+.studio-3d-page-enhanced {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-attachment: fixed;
+  position: relative;
+  overflow: hidden;
+}
+
+.studio-3d-page-enhanced::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Enhanced Header */
+.studio-enhanced-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1.5rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  animation: slideDown 0.5s ease;
+}
+
+.studio-header-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.studio-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.25rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  animation: fadeInLeft 0.6s ease;
+}
+
+.studio-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  animation: fadeInLeft 0.7s ease;
+}
+
+/* Enhanced Main Layout */
+.studio-enhanced-main {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
+  height: calc(100vh - 120px);
+}
+
+/* Viewer Container */
+.studio-viewer-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: fadeIn 0.8s ease;
+}
+
+/* Right Sidebar */
+.studio-sidebar-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+}
+
+.studio-sidebar-right::-webkit-scrollbar {
+  width: 8px;
+}
+
+.studio-sidebar-right::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.studio-sidebar-right::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.studio-sidebar-right::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.sidebar-spacer {
+  flex-shrink: 0;
+  height: 0.5rem;
+}
+
+/* Bottom Toolbar */
+.studio-bottom-bar {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  animation: slideUp 0.5s ease;
+}
+
+.bottom-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bar-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bar-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.bar-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.bar-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+}
+
+.bar-btn-primary:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #653a89 100%);
+}
+
+.bar-btn-secondary {
+  background: rgba(118, 75, 162, 0.3);
+  border: 1px solid rgba(118, 75, 162, 0.5);
+}
+
+/* Enhanced Notifications */
+.studio-enhanced-notification {
+  position: fixed;
+  bottom: 5rem;
+  right: 2rem;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 1.2rem 1.8rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+  animation: slideInNotification 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  max-width: 400px;
+}
+
+.studio-enhanced-notification.success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%);
+}
+
+.studio-enhanced-notification.error {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.9) 0%, rgba(185, 28, 28, 0.9) 100%);
+}
+
+.studio-enhanced-notification.info {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+}
+
+/* Enhanced Loading Overlay */
+.studio-loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+}
+
+.studio-loading-content {
+  background: white;
+  padding: 3rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.studio-spinner-animated {
+  width: 56px;
+  height: 56px;
+  border: 5px solid rgba(102, 126, 234, 0.2);
+  border-top-color: #667eea;
+  border-right-color: #764ba2;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite, pulse 2s ease-in-out infinite;
+  margin: 0 auto 1.5rem;
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
   }
-  
-  .studio-3d-controls-section {
-    order: -1;
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInNotification {
+  from {
+    transform: translateX(400px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(102, 126, 234, 0.8);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .studio-enhanced-main {
+    grid-template-columns: 1fr 340px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .studio-enhanced-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+
+  .studio-sidebar-right {
+    max-height: 400px;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 }
 
 @media (max-width: 768px) {
-  .studio-3d-page {
+  .studio-enhanced-header {
     padding: 1rem;
   }
-  
-  .studio-3d-title {
-    font-size: 2rem;
+
+  .studio-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
-  
-  .studio-3d-subtitle {
-    font-size: 1rem;
+
+  .studio-title {
+    font-size: 1.5rem;
   }
-  
-  .studio-3d-notification {
-    bottom: 1rem;
-    right: 1rem;
-    left: 1rem;
+
+  .studio-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .studio-enhanced-main {
+    padding: 1rem;
+    height: calc(100vh - 160px);
+  }
+
+  .studio-bottom-bar {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .bottom-bar-section {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .bar-label {
+    width: 100%;
+    text-align: center;
   }
 }
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .studio-3d-notification {
+  .studio-enhanced-header,
+  .studio-bottom-bar,
+  .studio-spinner-animated,
+  .studio-loading-content {
     animation: none;
-  }
-  
-  .studio-3d-spinner {
-    animation: none;
-    border-top-color: transparent;
   }
 }
 

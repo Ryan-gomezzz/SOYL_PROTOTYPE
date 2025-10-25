@@ -7,6 +7,8 @@ import { useRef, useState, useEffect } from 'react';
 import ThreeViewer from '../components/ThreeViewer/ThreeViewer';
 import InspectorPanel from '../components/Controls/InspectorPanel';
 import VoiceController from '../components/VoiceController';
+import TemplateSelector from '../components/TemplateSelector/TemplateSelector';
+import CustomCursor from '../components/CustomCursor';
 import axios from 'axios';
 import '../styles/3d-studio.css';
 
@@ -144,97 +146,83 @@ const DesignStudio3D = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
+  const [selectedTemplate, setSelectedTemplate] = React.useState<any>(null);
+
+  const handleTemplateSelect = (template: any) => {
+    setSelectedTemplate(template);
+    showNotification(`Loaded ${template.name} template`, 'success');
+  };
+
   return (
-    <div className="studio-3d-page">
-      <div className="studio-3d-container">
-        {/* Header */}
-        <header className="studio-3d-header">
-          <h1 className="studio-3d-title">3D Design Studio</h1>
-          <p className="studio-3d-subtitle">
-            Create, customize, and export your garment designs in 3D
-          </p>
-        </header>
-
-        {/* Main Layout */}
-        <div className="studio-3d-layout">
-          {/* Viewer Section */}
-          <div className="studio-3d-viewer-section">
-            <ThreeViewer
-              ref={viewerRef}
-              modelUrl="/models/placeholder.glb"
-              onLoad={handleModelLoad}
-              onError={handleModelError}
-            />
-            
-            {/* Voice Controller */}
-            <div className="studio-3d-voice-section">
-              <VoiceController
-                viewerRef={viewerRef}
-                onCommand={handleVoiceCommand}
-              />
-            </div>
+    <div className="studio-3d-page-enhanced">
+      <CustomCursor />
+      
+      {/* Top Header Bar */}
+      <header className="studio-enhanced-header">
+        <div className="studio-header-content">
+          <div>
+            <h1 className="studio-title">3D Design Studio</h1>
+            <p className="studio-subtitle">Create bespoke garment designs with interactive 3D controls</p>
           </div>
+          <VoiceController viewerRef={viewerRef} onCommand={handleVoiceCommand} />
+        </div>
+      </header>
 
-          {/* Controls Section */}
-          <div className="studio-3d-controls-section">
-            {/* Inspector Panel */}
-            <InspectorPanel
-              viewerRef={viewerRef}
-              onSave={handleSave}
-              onExport={handleExport}
-              designName={designName}
-            />
+      <div className="studio-enhanced-main">
+        {/* Main 3D Viewer (Left/Center) */}
+        <div className="studio-viewer-container">
+          <ThreeViewer
+            ref={viewerRef}
+            modelUrl="/models/placeholder.glb"
+            onLoad={handleModelLoad}
+            onError={handleModelError}
+          />
+        </div>
 
-            {/* Help Panel */}
-            <div className="studio-3d-help">
-              <h3 className="studio-3d-help-title">🎮 Controls</h3>
-              <ul className="studio-3d-help-list">
-                <li className="studio-3d-help-item">
-                  <span className="studio-3d-help-command">Mouse drag:</span> Rotate model
-                </li>
-                <li className="studio-3d-help-item">
-                  <span className="studio-3d-help-command">Scroll:</span> Zoom in/out
-                </li>
-                <li className="studio-3d-help-item">
-                  <span className="studio-3d-help-command">Arrow keys:</span> Rotate left/right
-                </li>
-                <li className="studio-3d-help-item">
-                  <span className="studio-3d-help-command">+/-:</span> Zoom in/out
-                </li>
-                <li className="studio-3d-help-item">
-                  <span className="studio-3d-help-command">R:</span> Reset camera
-                </li>
-              </ul>
+        {/* Right Panel - Templates & Controls */}
+        <aside className="studio-sidebar-right">
+          <TemplateSelector onSelectTemplate={handleTemplateSelect} selectedTemplateId={selectedTemplate?.id} />
+          
+          <div className="sidebar-spacer" />
+          
+          <InspectorPanel
+            viewerRef={viewerRef}
+            onSave={handleSave}
+            onExport={handleExport}
+            designName={designName}
+          />
+        </aside>
+      </div>
 
-              <h3 className="studio-3d-help-title" style={{ marginTop: '1.5rem' }}>
-                🎤 Voice Commands
-              </h3>
-              <ul className="studio-3d-help-list">
-                <li className="studio-3d-help-item">"Rotate left/right"</li>
-                <li className="studio-3d-help-item">"Zoom in/out"</li>
-                <li className="studio-3d-help-item">"Make it [color]"</li>
-                <li className="studio-3d-help-item">"Apply [texture]"</li>
-                <li className="studio-3d-help-item">"Front/back/left/right view"</li>
-                <li className="studio-3d-help-item">"Save design"</li>
-                <li className="studio-3d-help-item">"Export"</li>
-              </ul>
-            </div>
-          </div>
+      {/* Bottom Toolbar */}
+      <div className="studio-bottom-bar">
+        <div className="bottom-bar-section">
+          <span className="bar-label">Quick Tools:</span>
+          <button className="bar-btn" onClick={() => viewerRef.current?.resetCamera()}>Reset View</button>
+          <button className="bar-btn" onClick={() => viewerRef.current?.setCameraView('front')}>Front</button>
+          <button className="bar-btn" onClick={() => viewerRef.current?.setCameraView('side')}>Side</button>
+          <button className="bar-btn" onClick={() => viewerRef.current?.setCameraView('top')}>Top</button>
+        </div>
+        
+        <div className="bottom-bar-section">
+          <span className="bar-label">Actions:</span>
+          <button className="bar-btn bar-btn-primary" onClick={handleSave}>Save Design</button>
+          <button className="bar-btn bar-btn-secondary" onClick={handleExport}>Export PNG</button>
         </div>
       </div>
 
       {/* Notification Toast */}
       {notification && (
-        <div className={`studio-3d-notification ${notification.type}`} role="alert">
+        <div className={`studio-enhanced-notification ${notification.type}`} role="alert">
           {notification.message}
         </div>
       )}
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="studio-3d-loading-overlay">
-          <div className="studio-3d-loading-content">
-            <div className="studio-3d-spinner" />
+        <div className="studio-loading-overlay">
+          <div className="studio-loading-content">
+            <div className="studio-spinner-animated" />
             <p>Processing...</p>
           </div>
         </div>
