@@ -8,6 +8,7 @@ import RequireAuth from './components/RequireAuth';
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'));
 const Studio = lazy(() => import('./pages/Studio'));
+const DesignStudio3D = lazy(() => import('./pages/DesignStudio3D'));
 const About = lazy(() => import('./pages/About'));
 const Careers = lazy(() => import('./pages/Careers'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -32,6 +33,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/studio" element={<Studio />} />
+            <Route path="/design-studio-3d" element={<DesignStudio3D />} />
             <Route path="/about" element={<About />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/pricing" element={<Pricing />} />
