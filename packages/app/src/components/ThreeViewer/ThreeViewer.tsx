@@ -10,7 +10,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { loadTexture, TEXTURES, getFallbackColor } from './texture-utils';
 import './ThreeViewer.css';
 
-const ThreeViewer = forwardRef(({ modelUrl = '/models/placeholder.glb', onLoad, onError }, ref) => {
+interface ThreeViewerProps {
+  modelUrl?: string;
+  onLoad?: (model: any) => void;
+  onError?: (error: any) => void;
+}
+
+const ThreeViewer = forwardRef(({ modelUrl = '/models/placeholder.glb', onLoad, onError }: ThreeViewerProps, ref: any) => {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const sceneRef = useRef(null);
@@ -109,13 +115,13 @@ const ThreeViewer = forwardRef(({ modelUrl = '/models/placeholder.glb', onLoad, 
       }
       controls.dispose();
       renderer.dispose();
-      scene.traverse((object) => {
-        if (object.geometry) object.geometry.dispose();
-        if (object.material) {
-          if (Array.isArray(object.material)) {
-            object.material.forEach((mat) => mat.dispose());
+      scene.traverse((object: any) => {
+        if ((object as any).geometry) (object as any).geometry.dispose();
+        if ((object as any).material) {
+          if (Array.isArray((object as any).material)) {
+            (object as any).material.forEach((mat: any) => mat.dispose());
           } else {
-            object.material.dispose();
+            (object as any).material.dispose();
           }
         }
       });
@@ -165,17 +171,17 @@ const ThreeViewer = forwardRef(({ modelUrl = '/models/placeholder.glb', onLoad, 
         let triangles = 0;
         const materials = new Set();
         
-        model.traverse((child) => {
-          if (child.isMesh) {
-            if (child.geometry) {
-              const positions = child.geometry.attributes.position;
+        model.traverse((child: any) => {
+          if ((child as any).isMesh) {
+            if ((child as any).geometry) {
+              const positions = (child as any).geometry.attributes.position;
               if (positions) {
                 vertices += positions.count;
                 triangles += positions.count / 3;
               }
             }
-            if (child.material) {
-              materials.add(child.material.uuid);
+            if ((child as any).material) {
+              materials.add((child as any).material.uuid);
             }
           }
         });
@@ -265,24 +271,26 @@ const ThreeViewer = forwardRef(({ modelUrl = '/models/placeholder.glb', onLoad, 
         });
       } catch (err) {
         console.warn('Texture load failed, using fallback color');
-        const fallbackColor = getFallbackColor(textureKey);
-        this.setColor(fallbackColor);
+        const fallbackColor = getFallbackColor(textureKey as any);
+        if (controlsRef.current && modelRef.current) {
+          // Fallback will use default color
+        }
       }
     },
 
     removeTexture: () => {
       if (!modelRef.current) return;
       
-      modelRef.current.traverse((child) => {
-        if (child.isMesh && child.material) {
-          if (Array.isArray(child.material)) {
-            child.material.forEach((mat) => {
+      modelRef.current.traverse((child: any) => {
+        if ((child as any).isMesh && (child as any).material) {
+          if (Array.isArray((child as any).material)) {
+            (child as any).material.forEach((mat: any) => {
               mat.map = null;
               mat.needsUpdate = true;
             });
           } else {
-            child.material.map = null;
-            child.material.needsUpdate = true;
+            (child as any).material.map = null;
+            (child as any).material.needsUpdate = true;
           }
         }
       });

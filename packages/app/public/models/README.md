@@ -39,3 +39,4 @@ This directory needs a `placeholder.glb` file for the 3D viewer to function.
 
 Place your GLB files here and reference them in the DesignStudio3D component.
 
+

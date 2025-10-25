@@ -15,13 +15,13 @@ const useScreenshot = () => {
    * @param {Object} options - Capture options
    * @returns {Promise<{dataUrl: string, blob: Blob}>}
    */
-  const captureCanvas = useCallback(async (canvas, options = {}) => {
+  const captureCanvas = useCallback(async (canvas: HTMLCanvasElement, options: any = {}) => {
     const {
       format = 'image/png',
       quality = 0.95,
       width = null,
       height = null,
-    } = options;
+    }: any = options;
 
     setIsCapturing(true);
     setError(null);

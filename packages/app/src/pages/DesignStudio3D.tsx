@@ -4,11 +4,9 @@
  */
 
 import { useRef, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ThreeViewer from '../components/ThreeViewer/ThreeViewer';
 import InspectorPanel from '../components/Controls/InspectorPanel';
 import VoiceController from '../components/VoiceController';
-import useScreenshot from '../hooks/useScreenshot';
 import axios from 'axios';
 import '../styles/3d-studio.css';
 
@@ -16,13 +14,12 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const DesignStudio3D = () => {
   const viewerRef = useRef<any>(null);
-  const [designName, setDesignName] = useState('Untitled Design');
+  const [designName] = useState('Untitled Design');
   const [notification, setNotification] = useState<{
     message: string;
     type: 'success' | 'error' | 'info';
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   // Show notification
   const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {

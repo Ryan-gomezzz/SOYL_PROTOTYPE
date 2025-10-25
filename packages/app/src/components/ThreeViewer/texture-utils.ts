@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 // Texture cache to avoid reloading
-const textureCache = new Map();
+const textureCache = new Map<string, THREE.Texture>();
 
 // Available textures
 export const TEXTURES = {
@@ -30,17 +30,17 @@ export const TEXTURES = {
     url: '/textures/cotton.jpg',
     color: '#ffffff',
   },
-};
+} as const;
 
 /**
  * Load a texture with caching
  * @param {string} url - Texture URL
  * @returns {Promise<THREE.Texture>}
  */
-export async function loadTexture(url) {
+export async function loadTexture(url: string): Promise<THREE.Texture> {
   // Check cache first
   if (textureCache.has(url)) {
-    return textureCache.get(url);
+    return textureCache.get(url)!;
   }
 
   return new Promise((resolve, reject) => {
@@ -48,7 +48,7 @@ export async function loadTexture(url) {
     
     loader.load(
       url,
-      (texture) => {
+      (texture: THREE.Texture) => {
         // Configure texture
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
@@ -60,7 +60,7 @@ export async function loadTexture(url) {
         resolve(texture);
       },
       undefined,
-      (error) => {
+      (error: ErrorEvent) => {
         console.warn(`Failed to load texture ${url}:`, error);
         reject(error);
       }
@@ -72,9 +72,9 @@ export async function loadTexture(url) {
  * Preload all textures
  * @returns {Promise<void>}
  */
-export async function preloadTextures() {
+export async function preloadTextures(): Promise<void> {
   const promises = Object.values(TEXTURES).map(({ url }) => {
-    return loadTexture(url).catch((err) => {
+    return loadTexture(url).catch((err: Error) => {
       console.warn(`Skipping texture ${url}:`, err);
     });
   });
@@ -85,7 +85,7 @@ export async function preloadTextures() {
 /**
  * Clear texture cache
  */
-export function clearTextureCache() {
+export function clearTextureCache(): void {
   textureCache.forEach((texture) => {
     texture.dispose();
   });
@@ -97,7 +97,7 @@ export function clearTextureCache() {
  * @param {string} textureKey - Key from TEXTURES object
  * @returns {string} - Hex color
  */
-export function getFallbackColor(textureKey) {
+export function getFallbackColor(textureKey: keyof typeof TEXTURES): string {
   return TEXTURES[textureKey]?.color || '#cccccc';
 }
 

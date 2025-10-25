@@ -42,7 +42,7 @@ export class SoylStack extends cdk.Stack {
     const handler = new lambdaNode.NodejsFunction(this, "SoylHandler", {
       entry: path.join(__dirname, "..", "dist", "handler-full.js"),
       handler: "handler",
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       memorySize: 1024,
       timeout: cdk.Duration.seconds(30),
       tracing: lambda.Tracing.ACTIVE, // enable X-Ray
@@ -57,7 +57,7 @@ export class SoylStack extends cdk.Stack {
     const worker = new lambdaNode.NodejsFunction(this, "ImageWorker", {
       entry: path.join(__dirname, "..", "dist", "image-worker.js"),
       handler: "handler",
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       memorySize: 2048,
       timeout: cdk.Duration.seconds(900), // long-running for large images
       tracing: lambda.Tracing.ACTIVE,

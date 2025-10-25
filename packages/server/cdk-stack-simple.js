@@ -36,7 +36,7 @@ class SoylStack extends cdk.Stack {
     });
 
     const handler = new lambda.Function(this, 'SoylHandler', {
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler-full.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, 'dist'), {
         exclude: ['**', '!handler-full.js']
@@ -53,7 +53,7 @@ class SoylStack extends cdk.Stack {
 
     // Worker Lambda for image generation
     const worker = new lambda.Function(this, 'ImageWorker', {
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'image-worker.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, 'dist'), {
         exclude: ['**', '!image-worker.js', '!image-apis.js']

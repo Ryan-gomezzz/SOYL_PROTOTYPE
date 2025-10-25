@@ -15,48 +15,59 @@ export interface ImageGenerationResponse {
   error?: string;
 }
 
-// Option 1: Gemini Image Generation (Imagen 3)
+// Option 1: Gemini Image Generation (Imagen 4) - Using deployed Python Lambda
 export async function generateWithGemini(
   prompt: string, 
   apiKey: string,
   options: { width?: number; height?: number } = {}
 ): Promise<ImageGenerationResponse> {
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImage?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    // Import AWS SDK for Lambda invocation
+    const { LambdaClient, InvokeCommand } = await import('@aws-sdk/client-lambda');
+    
+    const lambdaClient = new LambdaClient({ region: process.env.AWS_REGION || 'ap-south-1' });
+    
+    // Prepare the payload for the Python Lambda
+    const payload = {
+      httpMethod: 'POST',
+      path: '/api/generate-cloth-design',
       body: JSON.stringify({
-        prompt: {
-          text: prompt
-        },
-        config: {
-          number_of_images: 1,
-          aspect_ratio: options.width && options.height ? 
-            `${options.width}:${options.height}` : '3:4',
-          safety_filter_level: 'block_some',
-          person_generation: 'allow_adult'
-        }
+        prompt: prompt,
+        style: 'modern',
+        colors: 'vibrant',
+        pattern_type: 'seamless',
+        fabric_type: 'cotton'
       })
+    };
+
+    const command = new InvokeCommand({
+      FunctionName: 'cloth-design-api',
+      Payload: JSON.stringify(payload)
     });
 
-    if (!response.ok) {
-      const error = await response.text();
-      return { success: false, error: `Gemini API error: ${response.status} - ${error}` };
-    }
-
-    const data = await response.json();
-    const imageData = data.generatedImages?.[0]?.imageBase64;
+    const response = await lambdaClient.send(command);
     
-    if (!imageData) {
-      return { success: false, error: 'No image data received from Gemini' };
+    if (!response.Payload) {
+      return { success: false, error: 'No response from Python Lambda' };
     }
 
-    const imageBuffer = Buffer.from(imageData, 'base64');
+    const result = JSON.parse(Buffer.from(response.Payload).toString());
+    
+    if (result.statusCode !== 200) {
+      return { success: false, error: `Python Lambda error: ${result.statusCode}` };
+    }
+
+    const data = JSON.parse(result.body);
+    
+    if (!data.success || !data.image_base64) {
+      return { success: false, error: 'No image data received from Python Lambda' };
+    }
+
+    const imageBuffer = Buffer.from(data.image_base64, 'base64');
     return { success: true, imageBuffer };
   } catch (error) {
-    return { success: false, error: `Gemini API error: ${error}` };
+    console.error('Python Lambda error:', error);
+    return { success: false, error: `Python Lambda error: ${error}` };
   }
 }
 
