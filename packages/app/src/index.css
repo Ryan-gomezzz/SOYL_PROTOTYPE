@@ -1,4 +1,7 @@
 @import './styles/variables.css';
+@import './styles/animations.css';
+@import './components/CustomCursor.css';
+@import './components/InteractiveGraph.css';
 
 @tailwind base;
 @tailwind components;
@@ -19,19 +22,149 @@
 }
 
 @layer components {
+  /* Enhanced Buttons with Micro-interactions */
   .btn-primary {
     @apply px-6 py-3 bg-transparent border-2 border-soyl-gold text-soyl-gold font-medium rounded-lg transition-all duration-300 hover:bg-soyl-gold hover:text-soyl-black hover:shadow-lg hover:shadow-soyl-gold/25;
+    position: relative;
+    overflow: hidden;
+    will-change: transform, box-shadow;
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+  }
+  
+  .btn-primary:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 0.1s;
+  }
+  
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--soyl-gold);
+    outline-offset: 2px;
   }
   
   .btn-secondary {
     @apply px-6 py-3 bg-soyl-gold text-soyl-black font-medium rounded-lg transition-all duration-300 hover:bg-soyl-gold/90 hover:shadow-lg hover:shadow-soyl-gold/25;
+    position: relative;
+    will-change: transform, box-shadow;
   }
   
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+  }
+  
+  .btn-secondary:active {
+    transform: translateY(0) scale(0.98);
+  }
+  
+  .btn-secondary:focus-visible {
+    outline: 2px solid var(--soyl-gold);
+    outline-offset: 2px;
+  }
+  
+  /* Enhanced Input Fields */
   .input-field {
     @apply w-full px-4 py-3 bg-soyl-black/50 border border-soyl-silver/30 rounded-lg text-soyl-white placeholder-soyl-silver/60 focus:border-soyl-gold focus:ring-1 focus:ring-soyl-gold transition-colors;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   }
   
+  .input-field:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+  }
+  
+  .input-field:focus-visible {
+    outline: none;
+  }
+  
+  /* Enhanced Cards with Hover Effects */
   .card {
     @apply bg-soyl-black/80 border border-soyl-silver/20 rounded-xl p-6 backdrop-blur-sm;
+    transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), border-color 0.3s ease;
+    will-change: transform, box-shadow;
+  }
+  
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(212, 175, 55, 0.1);
+    border-color: rgba(212, 175, 55, 0.3);
+  }
+  
+  /* Glass Effect Utility */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+  }
+  
+  /* Badge Utilities */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    background: var(--glass-bg);
+    border: 1px solid var(--color-border);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+  
+  .badge:hover {
+    transform: scale(1.05);
+    background: var(--color-primary);
+    color: var(--color-bg);
+  }
+  
+  .pill {
+    @apply inline-flex items-center px-4 py-2 rounded-full text-sm font-medium;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    color: var(--color-bg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .pill:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+  }
+  
+  /* Link Animations */
+  .link-animated {
+    position: relative;
+    text-decoration: none;
+    background-image: linear-gradient(var(--color-primary), var(--color-primary));
+    background-size: 0% 2px;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    transition: background-size 0.3s var(--ease-out);
+  }
+  
+  .link-animated:hover {
+    background-size: 100% 2px;
+  }
+  
+  /* Loading Shimmer */
+  .loading-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .loading-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+  
+  /* Transition Utility */
+  .transition-default {
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
 }

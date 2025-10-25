@@ -1,0 +1,282 @@
+/**
+ * SOYL Interactive Graph Component
+ * 
+ * Usage:
+ * <div class="graph-container">
+ *   <svg class="animated-graph" viewBox="0 0 300 100" preserveAspectRatio="none">
+ *     <path class="graph-line" d="M0,80 L50,60 L100,70 L150,40 L200,50 L250,30 L300,20" 
+ *           fill="none" stroke="currentColor" stroke-width="2"/>
+ *     <circle class="graph-point pop delay-100" cx="0" cy="80" r="3"/>
+ *     <circle class="graph-point pop delay-200" cx="50" cy="60" r="3"/>
+ *     <circle class="graph-point pop delay-300" cx="100" cy="70" r="3"/>
+ *     <circle class="graph-point pop delay-400" cx="150" cy="40" r="3"/>
+ *     <circle class="graph-point pop delay-500" cx="200" cy="50" r="3"/>
+ *   </svg>
+ * </div>
+ * 
+ * Add 'graph-animate' class to trigger animation:
+ * document.querySelector('.animated-graph').classList.add('graph-animate');
+ */
+
+/* ============================================
+   Graph Container
+   ============================================ */
+
+.graph-container {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  padding: var(--spacing-md, 1rem);
+  background: var(--glass-bg, rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  overflow: hidden;
+}
+
+.animated-graph {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ============================================
+   Graph Line Animation
+   ============================================ */
+
+.graph-line {
+  stroke: var(--color-primary, #6366f1);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  transition: stroke-dashoffset 2s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+  will-change: stroke-dashoffset;
+}
+
+/* Trigger animation */
+.graph-animate .graph-line {
+  stroke-dashoffset: 0;
+}
+
+/* Gradient fill under line */
+.graph-fill {
+  fill: url(#graphGradient);
+  opacity: 0;
+  transition: opacity 0.5s ease 1s;
+}
+
+.graph-animate .graph-fill {
+  opacity: 0.3;
+}
+
+/* ============================================
+   Graph Points
+   ============================================ */
+
+.graph-point {
+  fill: var(--color-accent, #f59e0b);
+  stroke: var(--color-bg, #000);
+  stroke-width: 2;
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: pop 0.4s var(--ease-bounce, cubic-bezier(0.68, -0.55, 0.265, 1.55)) forwards;
+  will-change: transform, opacity;
+}
+
+.graph-point:hover {
+  fill: var(--color-primary, #6366f1);
+  transform: scale(1.5);
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+
+/* ============================================
+   Graph Grid
+   ============================================ */
+
+.graph-grid-line {
+  stroke: var(--color-border, rgba(255, 255, 255, 0.1));
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+/* ============================================
+   Sparkline Variant (Minimal)
+   ============================================ */
+
+.sparkline {
+  width: 100%;
+  height: 40px;
+  display: inline-block;
+}
+
+.sparkline-line {
+  stroke: var(--color-primary, #6366f1);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+  animation: drawLine 1.5s var(--ease-out, ease-out) forwards;
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ============================================
+   Bar Chart Variant
+   ============================================ */
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-xs, 0.5rem);
+  height: 100px;
+  padding: var(--spacing-md, 1rem);
+}
+
+.bar {
+  flex: 1;
+  background: linear-gradient(
+    to top,
+    var(--color-primary, #6366f1),
+    var(--color-accent, #f59e0b)
+  );
+  border-radius: var(--radius-sm, 4px) var(--radius-sm, 4px) 0 0;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  animation: growBar 0.6s var(--ease-out, ease-out) forwards;
+  will-change: transform;
+  transition: opacity 0.2s ease;
+}
+
+.bar:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.bar:nth-child(1) { animation-delay: 0.1s; }
+.bar:nth-child(2) { animation-delay: 0.2s; }
+.bar:nth-child(3) { animation-delay: 0.3s; }
+.bar:nth-child(4) { animation-delay: 0.4s; }
+.bar:nth-child(5) { animation-delay: 0.5s; }
+.bar:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes growBar {
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* ============================================
+   Tooltip
+   ============================================ */
+
+.graph-tooltip {
+  position: absolute;
+  padding: var(--spacing-xs, 0.5rem) var(--spacing-sm, 0.75rem);
+  background: var(--color-surface, rgba(0, 0, 0, 0.9));
+  color: var(--color-text, #fff);
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.875rem;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+.graph-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================
+   Loading State
+   ============================================ */
+
+.graph-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface, #1f2937) 0%,
+    var(--glass-bg, rgba(255, 255, 255, 0.05)) 50%,
+    var(--color-surface, #1f2937) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+  border-radius: var(--radius-md, 8px);
+  height: 100px;
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+.graph-point:focus {
+  outline: 2px solid var(--color-primary, #6366f1);
+  outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .graph-line,
+  .sparkline-line {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  
+  .graph-point {
+    opacity: 1;
+    animation: none;
+  }
+  
+  .bar {
+    transform: scaleY(1);
+    animation: none;
+  }
+  
+  .graph-fill {
+    opacity: 0.3;
+    transition: none;
+  }
+}
+
+/* ============================================
+   Dark Mode
+   ============================================ */
+
+.theme-dark .graph-container {
+  background: var(--glass-bg, rgba(0, 0, 0, 0.3));
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .graph-tooltip {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-bg, #000);
+}
+
