@@ -3,12 +3,12 @@
  * Interactive 3D design studio with viewer, controls, and voice commands
  */
 
-import { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import ThreeViewer from '../components/ThreeViewer/ThreeViewer';
 import InspectorPanel from '../components/Controls/InspectorPanel';
 import VoiceController from '../components/VoiceController';
 import TemplateSelector from '../components/TemplateSelector/TemplateSelector';
-import CustomCursor from '../components/CustomCursor';
+import CustomCursor from '../components/CustomCursor/CustomCursor';
 import axios from 'axios';
 import '../styles/3d-studio.css';
 
