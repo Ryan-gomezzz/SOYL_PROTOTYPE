@@ -1,11 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, ShoppingCartIcon, UserIcon } from '@heroicons/react/24/outline';
+import Cart from './Cart';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState(0);
   const location = useLocation();
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const savedItems = localStorage.getItem('soyl_cart');
+      if (savedItems) {
+        const items = JSON.parse(savedItems);
+        setCartItems(items.reduce((sum: number, item: any) => sum + item.quantity, 0));
+      }
+    };
+    
+    updateCartCount();
+    window.addEventListener('storage', updateCartCount);
+    return () => window.removeEventListener('storage', updateCartCount);
+  }, []);
 
   const navItems = [
     { name: 'Studio', href: '/studio' },
@@ -51,6 +68,20 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
+            <Link to="/login" className="p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors">
+              <UserIcon className="h-6 w-6 text-soyl-gold" />
+            </Link>
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors"
+            >
+              <ShoppingCartIcon className="h-6 w-6 text-soyl-gold" />
+              {cartItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-soyl-gold text-soyl-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartItems}
+                </span>
+              )}
+            </button>
             <Link to="/dashboard" className="text-soyl-silver hover:text-soyl-white text-sm">
               Dashboard
             </Link>
@@ -96,6 +127,29 @@ const Header = () => {
                 </Link>
               ))}
               <div className="pt-4 border-t border-soyl-silver/20">
+                <div className="flex items-center space-x-4 mb-4">
+                  <Link 
+                    to="/login"
+                    className="p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <UserIcon className="h-6 w-6 text-soyl-gold" />
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsCartOpen(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="relative p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors"
+                  >
+                    <ShoppingCartIcon className="h-6 w-6 text-soyl-gold" />
+                    {cartItems > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-soyl-gold text-soyl-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {cartItems}
+                      </span>
+                    )}
+                  </button>
+                </div>
                 <Link 
                   to="/dashboard" 
                   className="block text-soyl-silver hover:text-soyl-white text-sm mb-4"
@@ -115,6 +169,9 @@ const Header = () => {
           </motion.div>
         )}
       </div>
+
+      {/* Cart */}
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </motion.header>
   );
 };

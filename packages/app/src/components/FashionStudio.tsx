@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { fabric } from 'fabric';
 import { useInterval } from '../hooks/useInterval';
 import { generateDesign, getConceptStatus } from '../lib/api';
+import { addToCart as addItemToCart } from './Cart';
 
 type ConceptResponse = {
   designId: string;
@@ -261,9 +262,23 @@ const FashionStudio = () => {
                       onLoad={() => console.log(`✅ Image ${index} loaded successfully`)}
                       onError={(e) => console.log(`❌ Image ${index} failed to load:`, e)}
                     />
-                    <div className="absolute inset-0 bg-soyl-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                    <div className="absolute inset-0 bg-soyl-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
                       <button className="btn-primary text-sm px-3 py-1">
                         View Full
+                      </button>
+                      <button 
+                        onClick={() => {
+                          addItemToCart({
+                            id: `design-${Date.now()}-${index}`,
+                            name: `${story.substring(0, 30)}... (Design ${index + 1})`,
+                            price: 299,
+                            image: preview,
+                            designId: result.designId,
+                          });
+                        }}
+                        className="btn-secondary text-sm px-3 py-1"
+                      >
+                        Add to Cart
                       </button>
                     </div>
                   </motion.div>

@@ -34,9 +34,9 @@ const ThreeViewer = forwardRef(({ modelUrl = '/models/placeholder.glb', onLoad, 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Scene setup
+    // Scene setup - Black, Gold, White Theme
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a2e);
+    scene.background = new THREE.Color(0x000000);
     sceneRef.current = scene;
 
     // Camera setup
@@ -49,38 +49,47 @@ const ThreeViewer = forwardRef(({ modelUrl = '/models/placeholder.glb', onLoad, 
     camera.position.set(0, 1, 3);
     cameraRef.current = camera;
 
-    // Renderer setup
+    // Renderer setup - Fixed for better performance
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
       antialias: true,
-      alpha: true,
+      alpha: false,
+      powerPreference: "high-performance",
     });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.0;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    // Lighting - Gold-themed lighting
+    const ambientLight = new THREE.AmbientLight(0xD4AF37, 0.4);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directionalLight = new THREE.DirectionalLight(0xD4AF37, 1.2);
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
 
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
     fillLight.position.set(-5, 0, -5);
     scene.add(fillLight);
 
-    // Controls
+    const backLight = new THREE.HemisphereLight(0x000000, 0xD4AF37, 0.3);
+    scene.add(backLight);
+
+    // Controls - Fixed glitch by adjusting settings
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
+    controls.dampingFactor = 0.08;
+    controls.enableZoom = true;
+    controls.enablePan = true;
     controls.minDistance = 1;
     controls.maxDistance = 10;
     controls.maxPolarAngle = Math.PI / 1.5;
+    controls.autoRotate = false;
     controlsRef.current = controls;
 
     // Load model
@@ -203,12 +212,13 @@ const ThreeViewer = forwardRef(({ modelUrl = '/models/placeholder.glb', onLoad, 
       (err) => {
         console.error('Error loading model:', err);
         
-        // Create fallback cube
+        // Create fallback cube with gold theme
         const geometry = new THREE.BoxGeometry(1, 1.5, 0.5);
         const material = new THREE.MeshStandardMaterial({ 
-          color: 0x667eea,
-          roughness: 0.5,
-          metalness: 0.2,
+          color: 0xD4AF37,
+          roughness: 0.3,
+          metalness: 0.8,
+          emissive: 0x000000,
         });
         const cube = new THREE.Mesh(geometry, material);
         

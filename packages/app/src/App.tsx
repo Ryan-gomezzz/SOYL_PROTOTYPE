@@ -14,6 +14,7 @@ const Careers = lazy(() => import('./pages/Careers'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Terms = lazy(() => import('./pages/Terms'));
+const Login = lazy(() => import('./pages/Login'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
             <Route path="/careers" element={<Careers />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/login" element={<Login />} />
             <Route 
               path="/dashboard" 
               element={

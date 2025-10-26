@@ -9,6 +9,7 @@ import InspectorPanel from '../components/Controls/InspectorPanel';
 import VoiceController from '../components/VoiceController';
 import TemplateSelector from '../components/TemplateSelector/TemplateSelector';
 import CustomCursor from '../components/CustomCursor/CustomCursor';
+import { addToCart as addItemToCart } from '../components/Cart';
 import axios from 'axios';
 import '../styles/3d-studio.css';
 
@@ -69,6 +70,21 @@ const DesignStudio3D = () => {
       showNotification('Failed to export design. Please try again.', 'error');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle add to cart
+  const handleAddToCart = () => {
+    if (viewerRef.current) {
+      const screenshot = viewerRef.current.getScreenshot();
+      addItemToCart({
+        id: `design-${Date.now()}`,
+        name: designName,
+        price: 299,
+        image: screenshot,
+        designId: `design-${Date.now()}`,
+      });
+      showNotification('Design added to cart!', 'success');
     }
   };
 
@@ -208,6 +224,13 @@ const DesignStudio3D = () => {
           <span className="bar-label">Actions:</span>
           <button className="bar-btn bar-btn-primary" onClick={handleSave}>Save Design</button>
           <button className="bar-btn bar-btn-secondary" onClick={handleExport}>Export PNG</button>
+          <button 
+            className="bar-btn bar-btn-primary" 
+            onClick={handleAddToCart}
+            style={{ background: 'rgba(212, 175, 55, 0.3)', borderColor: '#D4AF37' }}
+          >
+            Add to Cart
+          </button>
         </div>
       </div>
 
