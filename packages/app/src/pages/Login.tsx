@@ -3,11 +3,23 @@ import { CognitoUserPool, CognitoUser, AuthenticationDetails } from "amazon-cogn
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
-const poolData = {
-  UserPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || "",
-  ClientId: import.meta.env.VITE_COGNITO_CLIENT_ID || ""
+// Get AWS Cognito credentials from environment variables
+const getUserPool = () => {
+  const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID;
+  const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
+  
+  if (!userPoolId || !clientId) {
+    return null; // Return null if credentials are not configured
+  }
+  
+  const poolData = {
+    UserPoolId: userPoolId,
+    ClientId: clientId
+  };
+  return new CognitoUserPool(poolData);
 };
-const userPool = new CognitoUserPool(poolData);
+
+const userPool = getUserPool();
 
 export default function Login() {
   const navigate = useNavigate();
@@ -19,6 +31,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   function signUp() {
+    if (!userPool) {
+      setMessage("Authentication is not configured. Please configure AWS Cognito credentials.");
+      return;
+    }
     setLoading(true);
     setMessage("");
     userPool.signUp(email, password, [], [], (err, _result) => {
@@ -33,6 +49,10 @@ export default function Login() {
   }
 
   function confirm() {
+    if (!userPool) {
+      setMessage("Authentication is not configured. Please configure AWS Cognito credentials.");
+      return;
+    }
     setLoading(true);
     setMessage("");
     const user = new CognitoUser({ Username: email, Pool: userPool });
@@ -48,6 +68,10 @@ export default function Login() {
   }
 
   function signIn() {
+    if (!userPool) {
+      setMessage("Authentication is not configured. Please configure AWS Cognito credentials.");
+      return;
+    }
     setLoading(true);
     setMessage("");
     const authDetails = new AuthenticationDetails({ Username: email, Password: password });

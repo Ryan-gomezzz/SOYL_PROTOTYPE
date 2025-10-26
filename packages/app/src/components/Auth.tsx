@@ -1,11 +1,23 @@
 import { useState } from "react";
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from "amazon-cognito-identity-js";
 
-const poolData = {
-  UserPoolId: (import.meta as any).env?.VITE_COGNITO_USER_POOL_ID || "",
-  ClientId: (import.meta as any).env?.VITE_COGNITO_CLIENT_ID || ""
+// Get AWS Cognito credentials from environment variables
+const getUserPool = () => {
+  const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID;
+  const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
+  
+  if (!userPoolId || !clientId) {
+    return null; // Return null if credentials are not configured
+  }
+  
+  const poolData = {
+    UserPoolId: userPoolId,
+    ClientId: clientId
+  };
+  return new CognitoUserPool(poolData);
 };
-const userPool = new CognitoUserPool(poolData);
+
+const userPool = getUserPool();
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -15,6 +27,10 @@ export default function Auth() {
   const [message, setMessage] = useState("");
 
   function signUp() {
+    if (!userPool) {
+      setMessage("Authentication is not configured. Please configure AWS Cognito credentials.");
+      return;
+    }
     userPool.signUp(email, password, [], [], (err, _result) => {
       if (err) {
         setMessage(err.message || JSON.stringify(err));
@@ -26,6 +42,10 @@ export default function Auth() {
   }
 
   function confirm() {
+    if (!userPool) {
+      setMessage("Authentication is not configured. Please configure AWS Cognito credentials.");
+      return;
+    }
     const user = new CognitoUser({ Username: email, Pool: userPool });
     user.confirmRegistration(code, true, (err, _result) => {
       if (err) {
@@ -38,6 +58,10 @@ export default function Auth() {
   }
 
   function signIn() {
+    if (!userPool) {
+      setMessage("Authentication is not configured. Please configure AWS Cognito credentials.");
+      return;
+    }
     const authDetails = new AuthenticationDetails({ Username: email, Password: password });
     const cognitoUser = new CognitoUser({ Username: email, Pool: userPool });
     cognitoUser.authenticateUser(authDetails, {
