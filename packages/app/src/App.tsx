@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import RequireAuth from './components/RequireAuth';
+import RequireAdmin from './components/RequireAdmin';
 import CustomCursor from './components/CustomCursor/CustomCursor';
 
 // Lazy load pages
@@ -17,6 +18,7 @@ const Pricing = lazy(() => import('./pages/Pricing'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Login = lazy(() => import('./pages/Login'));
 const Catalog = lazy(() => import('./pages/Catalog'));
+const Admin = lazy(() => import('./pages/Admin'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
@@ -44,6 +46,14 @@ function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/login" element={<Login />} />
             <Route path="/catalog" element={<Catalog />} />
+            <Route 
+              path="/admin" 
+              element={
+                <RequireAdmin>
+                  <Admin />
+                </RequireAdmin>
+              } 
+            />
             <Route 
               path="/dashboard" 
               element={

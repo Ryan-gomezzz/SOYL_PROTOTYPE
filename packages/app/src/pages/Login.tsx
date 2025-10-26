@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from "amazon-cognito-identity-js";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { login, register, type User } from "../lib/auth";
 
 // Get AWS Cognito credentials from environment variables
 const getUserPool = () => {
@@ -30,22 +31,21 @@ export default function Login() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function signUp() {
-    if (!userPool) {
-      setMessage("Authentication is not configured. Please configure AWS Cognito credentials.");
-      return;
-    }
+  async function signUp() {
     setLoading(true);
     setMessage("");
-    userPool.signUp(email, password, [], [], (err, _result) => {
-      setLoading(false);
-      if (err) {
-        setMessage(err.message || JSON.stringify(err));
-        return;
+    
+    try {
+      const user = await register(email, password);
+      if (user) {
+        setMessage("Registration successful! You can now sign in.");
+        setStage("signIn");
       }
-      setMessage("Signup successful! Please check your email for a confirmation code.");
-      setStage("confirm");
-    });
+    } catch (err: any) {
+      setMessage(err.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function confirm() {
@@ -67,29 +67,30 @@ export default function Login() {
     });
   }
 
-  function signIn() {
-    if (!userPool) {
-      setMessage("Authentication is not configured. Please configure AWS Cognito credentials.");
-      return;
-    }
+  async function signIn() {
     setLoading(true);
     setMessage("");
-    const authDetails = new AuthenticationDetails({ Username: email, Password: password });
-    const cognitoUser = new CognitoUser({ Username: email, Pool: userPool });
-    cognitoUser.authenticateUser(authDetails, {
-      onSuccess: (data) => {
-        setLoading(false);
-        const idToken = (data as any).getIdToken().getJwtToken();
-        localStorage.setItem("soyl_id_token", idToken);
+    
+    try {
+      const user = await login(email, password);
+      if (user) {
         localStorage.setItem("soyl_email", email);
         setMessage("Signed in successfully!");
-        setTimeout(() => navigate("/dashboard"), 1000);
-      },
-      onFailure: (err) => {
-        setLoading(false);
-        setMessage(err.message || JSON.stringify(err));
+        setTimeout(() => {
+          if (user.role === 'admin') {
+            navigate("/admin");
+          } else {
+            navigate("/dashboard");
+          }
+        }, 1000);
+      } else {
+        setMessage("Invalid email or password. Try: admin@soyl.com / admin123 for admin access");
       }
-    });
+    } catch (err: any) {
+      setMessage(err.message || "Sign in failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

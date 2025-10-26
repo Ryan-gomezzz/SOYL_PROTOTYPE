@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bars3Icon, XMarkIcon, ShoppingCartIcon, UserIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, ShoppingCartIcon, UserIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import Cart from './Cart';
+import { getCurrentUser, logout, isAdmin } from '../lib/auth';
 
 const Header = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
+  const [user, setUser] = useState(getCurrentUser());
   const location = useLocation();
 
   useEffect(() => {
@@ -23,6 +26,12 @@ const Header = () => {
     window.addEventListener('storage', updateCartCount);
     return () => window.removeEventListener('storage', updateCartCount);
   }, []);
+
+  const handleLogout = () => {
+    logout();
+    setUser(null);
+    window.location.reload();
+  };
 
   const navItems = [
     { name: 'Studio', href: '/studio' },
@@ -69,9 +78,25 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/login" className="p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors">
-              <UserIcon className="h-6 w-6 text-soyl-gold" />
-            </Link>
+            {user ? (
+              <>
+                {isAdmin() && (
+                  <Link to="/admin" className="p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors" title="Admin Panel">
+                    <ShieldCheckIcon className="h-6 w-6 text-soyl-gold" />
+                  </Link>
+                )}
+                <Link to="/dashboard" className="p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors" title="Dashboard">
+                  <UserIcon className="h-6 w-6 text-soyl-gold" />
+                </Link>
+                <button onClick={handleLogout} className="text-soyl-silver hover:text-soyl-gold text-sm transition-colors">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors">
+                <UserIcon className="h-6 w-6 text-soyl-gold" />
+              </Link>
+            )}
             <button
               onClick={() => setIsCartOpen(true)}
               className="relative p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors"
