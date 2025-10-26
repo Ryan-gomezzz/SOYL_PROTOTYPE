@@ -5,7 +5,8 @@
   left: 0;
   pointer-events: none;
   z-index: 9999;
-  mix-blend-mode: difference;
+  mix-blend-mode: normal;
+  will-change: transform;
 }
 
 .cursor-dot {
@@ -39,14 +40,10 @@
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Hide default cursor on desktop */
+/* Hide default cursor on desktop - but not for critical interactive elements */
 @media (min-width: 768px) {
-  * {
-    cursor: none !important;
-  }
-
-  a, button, input, textarea, select {
-    cursor: none !important;
+  body {
+    cursor: none;
   }
 }
 

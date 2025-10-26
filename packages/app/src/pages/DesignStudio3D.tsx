@@ -8,7 +8,6 @@ import ThreeViewer from '../components/ThreeViewer/ThreeViewer';
 import InspectorPanel from '../components/Controls/InspectorPanel';
 import VoiceController from '../components/VoiceController';
 import TemplateSelector from '../components/TemplateSelector/TemplateSelector';
-import CustomCursor from '../components/CustomCursor/CustomCursor';
 import { addToCart as addItemToCart } from '../components/Cart';
 import axios from 'axios';
 import '../styles/3d-studio.css';
@@ -171,8 +170,6 @@ const DesignStudio3D = () => {
 
   return (
     <div className="studio-3d-page-enhanced">
-      <CustomCursor />
-      
       {/* Top Header Bar */}
       <header className="studio-enhanced-header">
         <div className="studio-header-content">

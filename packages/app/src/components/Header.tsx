@@ -27,6 +27,7 @@ const Header = () => {
   const navItems = [
     { name: 'Studio', href: '/studio' },
     { name: '3D Studio', href: '/design-studio-3d' },
+    { name: 'Catalog', href: '/catalog' },
     { name: 'About', href: '/about' },
     { name: 'Careers', href: '/careers' },
     { name: 'Pricing', href: '/pricing' },

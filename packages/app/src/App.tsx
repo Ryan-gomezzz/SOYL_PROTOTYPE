@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import RequireAuth from './components/RequireAuth';
+import CustomCursor from './components/CustomCursor/CustomCursor';
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'));
@@ -15,11 +16,13 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Login = lazy(() => import('./pages/Login'));
+const Catalog = lazy(() => import('./pages/Catalog'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
   return (
     <div className="min-h-screen bg-soyl-black text-soyl-white">
+      <CustomCursor />
       <Header />
       <main className="min-h-screen">
         <Suspense fallback={
@@ -40,6 +43,7 @@ function App() {
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/catalog" element={<Catalog />} />
             <Route 
               path="/dashboard" 
               element={
