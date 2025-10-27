@@ -433,6 +433,7 @@ export const addToCart = async (item: {
   image?: string;
   metadata?: Record<string, any>;
   variantId?: string;
+  designId?: string;
 }) => {
   const user = getCurrentUser();
   
