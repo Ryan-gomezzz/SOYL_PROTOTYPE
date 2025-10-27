@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bars3Icon, XMarkIcon, ShoppingCartIcon, UserIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon, ShoppingCartIcon, UserIcon, ShieldCheckIcon, HeartIcon } from '@heroicons/react/24/outline';
 import Cart from './Cart';
+import Wishlist from './Wishlist';
 import { getCurrentUser, logout, isAdmin } from '../lib/auth';
 
 const Header = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
+  const [wishlistItems, setWishlistItems] = useState(0);
   const [user, setUser] = useState(getCurrentUser());
   const location = useLocation();
 
@@ -22,9 +25,24 @@ const Header = () => {
       }
     };
     
+    const updateWishlistCount = () => {
+      const savedWishlist = localStorage.getItem('soyl_wishlist');
+      if (savedWishlist) {
+        const wishlist = JSON.parse(savedWishlist);
+        setWishlistItems(wishlist.items?.length || 0);
+      }
+    };
+    
     updateCartCount();
+    updateWishlistCount();
     window.addEventListener('storage', updateCartCount);
-    return () => window.removeEventListener('storage', updateCartCount);
+    window.addEventListener('storage', updateWishlistCount);
+    window.addEventListener('wishlistUpdated', updateWishlistCount);
+    return () => {
+      window.removeEventListener('storage', updateCartCount);
+      window.removeEventListener('storage', updateWishlistCount);
+      window.removeEventListener('wishlistUpdated', updateWishlistCount);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -97,9 +115,24 @@ const Header = () => {
                 <UserIcon className="h-6 w-6 text-soyl-gold" />
               </Link>
             )}
+            {user && (
+              <button
+                onClick={() => setIsWishlistOpen(true)}
+                className="relative p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors"
+                aria-label="Wishlist"
+              >
+                <HeartIcon className="h-6 w-6 text-soyl-gold" />
+                {wishlistItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-soyl-gold text-soyl-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {wishlistItems}
+                  </span>
+                )}
+              </button>
+            )}
             <button
               onClick={() => setIsCartOpen(true)}
               className="relative p-2 hover:bg-soyl-gold/10 rounded-lg transition-colors"
+              aria-label="Shopping cart"
             >
               <ShoppingCartIcon className="h-6 w-6 text-soyl-gold" />
               {cartItems > 0 && (
@@ -198,6 +231,11 @@ const Header = () => {
 
       {/* Cart */}
       <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      
+      {/* Wishlist */}
+      {user && (
+        <Wishlist isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />
+      )}
     </motion.header>
   );
 };

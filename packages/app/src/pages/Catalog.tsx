@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { addToCart } from '../components/Cart';
-import { PhotoIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { addToWishlist } from '../components/Wishlist';
+import { PhotoIcon, TrashIcon, PlusIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { getCurrentUser, isAdmin } from '../lib/auth';
 
 interface Product {
   id: string;
@@ -92,7 +94,7 @@ const Catalog = () => {
           </p>
         </motion.div>
 
-        {/* Add Product Button */}
+        {/* Add Product Button - Only show for admins */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex gap-4">
             {categories.map(cat => (
@@ -105,13 +107,15 @@ const Catalog = () => {
               </button>
             ))}
           </div>
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="btn-secondary flex items-center gap-2"
-          >
-            <PlusIcon className="h-5 w-5" />
-            Add Product
-          </button>
+          {isAdmin() && (
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <PlusIcon className="h-5 w-5" />
+              Add Product
+            </button>
+          )}
         </div>
 
         {/* Add Product Form */}
@@ -249,11 +253,21 @@ const Catalog = () => {
                       Add to Cart
                     </button>
                     <button
-                      onClick={() => handleDeleteProduct(product.id)}
-                      className="p-2 hover:bg-red-900/20 rounded transition-colors"
+                      onClick={() => addToWishlist({ productId: product.id })}
+                      className="p-2 hover:bg-soyl-gold/10 rounded transition-colors"
+                      aria-label="Add to wishlist"
                     >
-                      <TrashIcon className="h-5 w-5 text-red-500" />
+                      <HeartIcon className="h-5 w-5 text-soyl-gold" />
                     </button>
+                    {isAdmin() && (
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="p-2 hover:bg-red-900/20 rounded transition-colors"
+                        aria-label="Delete product"
+                      >
+                        <TrashIcon className="h-5 w-5 text-red-500" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </motion.div>
