@@ -269,9 +269,9 @@ const FashionStudio = () => {
                       <button 
                         onClick={() => {
                           addItemToCart({
-                            id: `design-${Date.now()}-${index}`,
+                            productId: `design-${Date.now()}-${index}`,
                             name: `${story.substring(0, 30)}... (Design ${index + 1})`,
-                            price: 299,
+                            priceAtAdd: 299,
                             image: preview,
                             designId: result.designId,
                           });

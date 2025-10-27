@@ -77,9 +77,9 @@ const DesignStudio3D = () => {
     if (viewerRef.current) {
       const screenshot = viewerRef.current.getScreenshot();
       addItemToCart({
-        id: `design-${Date.now()}`,
+        productId: `design-${Date.now()}`,
         name: designName,
-        price: 299,
+        priceAtAdd: 299,
         image: screenshot,
         designId: `design-${Date.now()}`,
       });

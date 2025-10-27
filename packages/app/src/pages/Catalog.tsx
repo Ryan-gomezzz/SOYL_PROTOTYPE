@@ -63,9 +63,9 @@ const Catalog = () => {
 
   const handleAddToCart = (product: Product) => {
     addToCart({
-      id: product.id,
+      productId: product.id,
       name: product.name,
-      price: product.price,
+      priceAtAdd: product.price,
       image: product.image,
     });
     alert(`${product.name} added to cart!`);

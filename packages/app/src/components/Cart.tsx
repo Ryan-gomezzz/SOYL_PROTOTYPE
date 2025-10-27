@@ -14,6 +14,8 @@ interface CartItem {
   image?: string;
   designId?: string;
   metadata?: Record<string, any>;
+  // Legacy support for backwards compatibility
+  price?: number;
 }
 
 interface CartProps {
@@ -214,7 +216,7 @@ const Cart = ({ isOpen, onClose, onItemAdded }: CartProps) => {
   };
 
   const calculateTotals = () => {
-    const subtotal = items.reduce((sum, item) => sum + (item.priceAtAdd || item.price || 0) * item.quantity, 0);
+    const subtotal = items.reduce((sum, item) => sum + (item.priceAtAdd || 0) * item.quantity, 0);
     return {
       subtotal,
       discount,
@@ -314,7 +316,7 @@ const Cart = ({ isOpen, onClose, onItemAdded }: CartProps) => {
                               {item.name}
                             </h3>
                             <p className="text-soyl-gold font-bold text-xl mb-2">
-                              ${(item.priceAtAdd || item.price || 0).toFixed(2)}
+                              ${(item.priceAtAdd || 0).toFixed(2)}
                             </p>
                             
                             {/* Quantity Controls */}
