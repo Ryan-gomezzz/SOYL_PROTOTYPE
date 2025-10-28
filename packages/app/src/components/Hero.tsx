@@ -1,9 +1,18 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { ChatbotWidget } from './Chatbot';
 
 const Hero = () => {
+  const [showChatbot, setShowChatbot] = useState(false);
+
+  const handleDesignWithAI = () => {
+    setShowChatbot(true);
+  };
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <>
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-soyl-black via-soyl-black/90 to-soyl-black/80" />
       
@@ -56,6 +65,12 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
           >
+            <button 
+              onClick={handleDesignWithAI}
+              className="btn-primary text-lg px-8 py-4 bg-gradient-to-r from-soyl-gold to-soyl-bronze hover:from-soyl-gold/90 hover:to-soyl-bronze/90 text-soyl-black font-semibold rounded-lg transition-all duration-200"
+            >
+              Design with AI
+            </button>
             <Link to="/studio" className="btn-secondary text-lg px-8 py-4">
               Begin Your Story
             </Link>
@@ -86,6 +101,19 @@ const Hero = () => {
         </motion.div>
       </div>
     </section>
+    
+    {/* Chatbot Widget */}
+    {showChatbot && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="relative w-full max-w-md mx-4">
+          <ChatbotWidget 
+            autoOpenDelay={0}
+            onComplete={() => setShowChatbot(false)}
+          />
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

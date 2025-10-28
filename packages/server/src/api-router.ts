@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as cartWishlist from './cart-wishlist-api';
+import { chatbotResponsesHandler } from './chatbot-api';
 
 export async function routeRequest(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const path = event.path || '';
@@ -48,6 +49,13 @@ export async function routeRequest(event: APIGatewayProxyEvent): Promise<APIGate
     }
     if (method === 'GET' && path.startsWith('/api/wishlist/shared/')) {
       return cartWishlist.getSharedWishlistHandler(event);
+    }
+  }
+
+  // Chatbot API routes
+  if (path.startsWith('/api/chatbot')) {
+    if (method === 'POST' && path === '/api/chatbot-responses') {
+      return chatbotResponsesHandler(event);
     }
   }
 

@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import RequireAuth from './components/RequireAuth';
 import RequireAdmin from './components/RequireAdmin';
 import CustomCursor from './components/CustomCursor/CustomCursor';
+import { ChatbotWidget } from './components/Chatbot';
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'));
@@ -67,6 +68,7 @@ function App() {
         </Suspense>
       </main>
       <Footer />
+      <ChatbotWidget />
     </div>
   );
 }
