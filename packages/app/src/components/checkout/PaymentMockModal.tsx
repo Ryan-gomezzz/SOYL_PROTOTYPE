@@ -5,7 +5,10 @@ import {
   CreditCardIcon, 
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  ClockIcon
+  ClockIcon,
+  DevicePhoneMobileIcon,
+  BanknotesIcon,
+  TruckIcon
 } from '@heroicons/react/24/outline';
 
 interface PaymentMockModalProps {

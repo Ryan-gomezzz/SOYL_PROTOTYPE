@@ -4,11 +4,13 @@ import { motion } from 'framer-motion';
 import { 
   CheckCircleIcon, 
   TruckIcon, 
-  DownloadIcon,
+  ArrowDownTrayIcon,
   EyeIcon,
   CalendarIcon,
   MapPinIcon,
-  CreditCardIcon
+  CreditCardIcon,
+  ExclamationTriangleIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 
 interface OrderItem {
@@ -377,7 +379,7 @@ const OrderConfirmation: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <DownloadIcon className="w-5 h-5" />
+                  <ArrowDownTrayIcon className="w-5 h-5" />
                   Download Invoice
                 </>
               )}

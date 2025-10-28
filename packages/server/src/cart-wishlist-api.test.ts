@@ -6,25 +6,7 @@ import {
   getWishlistHandler,
   shareWishlistHandler
 } from './cart-wishlist-api';
-
-// Mock AWS SDK before importing the module
-jest.mock('@aws-sdk/client-dynamodb', () => ({
-  DynamoDBClient: jest.fn(),
-}));
-
-jest.mock('@aws-sdk/lib-dynamodb', () => {
-  const mockSend = jest.fn();
-  return {
-    DynamoDBDocumentClient: {
-      from: jest.fn(() => ({ send: mockSend })),
-    },
-    GetCommand: jest.fn((params) => params),
-    PutCommand: jest.fn((params) => params),
-    UpdateCommand: jest.fn((params) => params),
-    DeleteCommand: jest.fn((params) => params),
-    __mockSend: mockSend,
-  };
-});
+import { mockSend } from './setupTests';
 
 // Mock event factory
 const createMockEvent = (path: string, method: string, body?: any, userId?: string) => ({
@@ -38,6 +20,12 @@ const createMockEvent = (path: string, method: string, body?: any, userId?: stri
 } as any);
 
 describe('Cart API', () => {
+  beforeEach(() => {
+    // Reset mock to return empty cart
+    mockSend.mockResolvedValue({
+      Item: undefined,
+    });
+  });
   it('should get empty cart for new user', async () => {
     const event = createMockEvent('/api/cart', 'GET', undefined, 'user-123');
     const result = await getCartHandler(event);
@@ -93,6 +81,12 @@ describe('Cart API', () => {
 });
 
 describe('Wishlist API', () => {
+  beforeEach(() => {
+    // Reset mock to return empty wishlist
+    mockSend.mockResolvedValue({
+      Item: undefined,
+    });
+  });
   it('should get empty wishlist for new user', async () => {
     const event = createMockEvent('/api/wishlist', 'GET', undefined, 'user-123');
     const result = await getWishlistHandler(event);
@@ -104,6 +98,17 @@ describe('Wishlist API', () => {
   });
 
   it('should generate shareable wishlist link', async () => {
+    // Mock existing wishlist for this test
+    mockSend.mockResolvedValueOnce({
+      Item: {
+        wishlistId: 'wishlist-123',
+        userId: 'user-123',
+        name: 'My Wishlist',
+        items: [],
+        createdAt: new Date().toISOString(),
+      },
+    });
+    
     const event = createMockEvent('/api/wishlist/share', 'POST', undefined, 'user-123');
     const result = await shareWishlistHandler(event);
     

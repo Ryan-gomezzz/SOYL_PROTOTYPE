@@ -33,6 +33,9 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
   DeleteCommand: mockDeleteCommand,
 }));
 
+// Export mock for use in tests
+export { mockSend, mockGetCommand, mockPutCommand, mockUpdateCommand, mockDeleteCommand };
+
 // Mock @aws-sdk/client-dynamodb
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: jest.fn(() => ({})),

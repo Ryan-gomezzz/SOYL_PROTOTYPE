@@ -9,7 +9,7 @@
     "start": "node dist/handler.js",
     "dev": "ts-node-esm src/handler.ts",
     "dev:express": "node index.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "cdk:bootstrap": "cdk bootstrap",
     "cdk:deploy": "cdk deploy --require-approval never"
   },
@@ -33,6 +33,7 @@
     "@types/uuid": "^9.0.0",
     "aws-cdk-lib": "^2.80.0",
     "constructs": "^10.1.104",
+    "cross-env": "^7.0.3",
     "esbuild": "^0.17.19",
     "jest": "^29.7.0",
     "supertest": "^7.1.4",
