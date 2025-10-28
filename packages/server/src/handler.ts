@@ -1,10 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
+import { ddbDocClient } from './aws-clients';
 
 const REGION = process.env.AWS_REGION || 'us-east-1';
 const SECRETS_NAME_GEMINI = 'SOYL/GEMINI_API_KEY';
@@ -17,8 +17,6 @@ const PREVIEW_TTL_SECONDS = 300; // signed URL expiry
 // AWS clients
 const secretsClient = new SecretsManagerClient({ region: REGION });
 const s3 = new S3Client({ region: REGION });
-const ddb = new DynamoDBClient({ region: REGION });
-const ddbDoc = DynamoDBDocumentClient.from(ddb);
 
 // Types
 type BriefReq = {
@@ -288,7 +286,7 @@ Do NOT include explanatory text outside JSON. If you cannot produce a design, re
         const designId = uuidv4();
         // store to DynamoDB
         try {
-          await ddbDoc.send(
+          await ddbDocClient.send(
             new PutCommand({
               TableName: DDB_TABLE,
               Item: {
