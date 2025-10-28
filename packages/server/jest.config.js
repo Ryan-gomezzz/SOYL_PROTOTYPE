@@ -16,4 +16,9 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!(@aws-sdk)/)',
   ],
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.test.json'
+    }
+  }
 };
