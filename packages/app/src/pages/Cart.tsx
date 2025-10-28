@@ -24,6 +24,8 @@ interface Cart {
   items: CartItem[];
   subtotal: number;
   currency: string;
+  couponCode?: string;
+  discount?: number;
 }
 
 interface CartPageProps {
@@ -46,6 +48,43 @@ const CartPage: React.FC<CartPageProps> = ({ onCheckout }) => {
   const loadCart = async () => {
     try {
       setLoading(true);
+      
+      // Check if we're in development mode
+      const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+      
+      if (isDevelopment) {
+        // Use mock data for development
+        const mockCart: Cart = {
+          cartId: 'cart_dev_123',
+          items: [
+            {
+              itemId: 'item_1',
+              sku: 'TSHIRT001',
+              name: 'SOYL Premium T-Shirt',
+              price: 999.99,
+              quantity: 2,
+              thumbnail: '/placeholder-product.svg'
+            },
+            {
+              itemId: 'item_2',
+              sku: 'HOODIE001',
+              name: 'SOYL Signature Hoodie',
+              price: 1999.99,
+              quantity: 1,
+              thumbnail: '/placeholder-product.svg'
+            }
+          ],
+          subtotal: 3999.97,
+          currency: 'INR'
+        };
+        
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setCart(mockCart);
+        return;
+      }
+      
+      // Production: try API call
       const response = await fetch('/api/cart');
       if (response.ok) {
         const cartData = await response.json();
@@ -59,7 +98,14 @@ const CartPage: React.FC<CartPageProps> = ({ onCheckout }) => {
       }
     } catch (err) {
       console.error('Failed to load cart:', err);
-      setError('Failed to load cart. Please try again.');
+      
+      // Fallback to localStorage
+      const localCart = localStorage.getItem('soyl_cart');
+      if (localCart) {
+        setCart(JSON.parse(localCart));
+      } else {
+        setError('Failed to load cart. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -69,6 +115,37 @@ const CartPage: React.FC<CartPageProps> = ({ onCheckout }) => {
     if (newQuantity < 1 || newQuantity > 10) return;
 
     try {
+      // Check if we're in development mode
+      const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+      
+      if (isDevelopment) {
+        // Update cart locally in development
+        if (cart) {
+          const updatedItems = cart.items.map(item => 
+            item.itemId === itemId 
+              ? { ...item, quantity: newQuantity }
+              : item
+          );
+          
+          const updatedCart = {
+            ...cart,
+            items: updatedItems,
+            subtotal: updatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+          };
+          
+          setCart(updatedCart);
+          
+          // Track analytics
+          trackEvent('update_cart_item', {
+            itemId,
+            quantity: newQuantity,
+            cartId: cart.cartId,
+          });
+        }
+        return;
+      }
+      
+      // Production: API call
       const response = await fetch('/api/cart', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -96,6 +173,31 @@ const CartPage: React.FC<CartPageProps> = ({ onCheckout }) => {
 
   const removeItem = async (itemId: string) => {
     try {
+      // Check if we're in development mode
+      const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+      
+      if (isDevelopment) {
+        // Remove item locally in development
+        if (cart) {
+          const updatedItems = cart.items.filter(item => item.itemId !== itemId);
+          const updatedCart = {
+            ...cart,
+            items: updatedItems,
+            subtotal: updatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+          };
+          
+          setCart(updatedCart);
+          
+          // Track analytics
+          trackEvent('remove_from_cart', {
+            itemId,
+            cartId: cart.cartId,
+          });
+        }
+        return;
+      }
+      
+      // Production: API call
       const response = await fetch(`/api/cart/${itemId}`, {
         method: 'DELETE',
       });
@@ -125,6 +227,53 @@ const CartPage: React.FC<CartPageProps> = ({ onCheckout }) => {
     setCouponError(null);
 
     try {
+      // Check if we're in development mode
+      const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+      
+      if (isDevelopment) {
+        // Mock coupon validation in development
+        const validCoupons: Record<string, { discount: number; type: 'percentage' | 'fixed' }> = {
+          'WELCOME10': { discount: 10, type: 'percentage' },
+          'SAVE100': { discount: 100, type: 'fixed' },
+          'FIRST20': { discount: 20, type: 'percentage' },
+        };
+
+        const coupon = validCoupons[couponCode.toUpperCase()];
+        
+        if (!coupon) {
+          setCouponError('Invalid coupon code');
+          return;
+        }
+
+        // Apply discount locally
+        if (cart) {
+          let discountAmount = 0;
+          if (coupon.type === 'percentage') {
+            discountAmount = (cart.subtotal * coupon.discount) / 100;
+          } else {
+            discountAmount = Math.min(coupon.discount, cart.subtotal);
+          }
+
+          const updatedCart = {
+            ...cart,
+            couponCode: couponCode.toUpperCase(),
+            discount: discountAmount,
+            subtotal: cart.subtotal - discountAmount,
+          };
+          
+          setCart(updatedCart);
+          setCouponCode('');
+          
+          // Track analytics
+          trackEvent('coupon_applied', {
+            couponCode: couponCode.toUpperCase(),
+            cartId: cart.cartId,
+          });
+        }
+        return;
+      }
+      
+      // Production: API call
       const response = await fetch('/api/cart/coupon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -258,7 +407,7 @@ const CartPage: React.FC<CartPageProps> = ({ onCheckout }) => {
                             alt={item.name}
                             className="w-full h-full object-cover rounded-lg"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/placeholder-product.jpg';
+                              (e.target as HTMLImageElement).src = '/placeholder-product.svg';
                             }}
                           />
                         </div>
@@ -344,8 +493,14 @@ const CartPage: React.FC<CartPageProps> = ({ onCheckout }) => {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>₹{cart.subtotal.toFixed(2)}</span>
+                    <span>₹{(cart.subtotal + (cart.discount || 0)).toFixed(2)}</span>
                   </div>
+                  {cart.discount && cart.discount > 0 && (
+                    <div className="flex justify-between text-soyl-gold">
+                      <span>Discount ({cart.couponCode})</span>
+                      <span>-₹{cart.discount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span>Shipping</span>
                     <span className="text-soyl-silver">Calculated at checkout</span>
