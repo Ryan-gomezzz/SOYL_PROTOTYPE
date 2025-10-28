@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Bars3Icon, XMarkIcon, ShoppingCartIcon, UserIcon, ShieldCheckIcon, HeartIcon } from '@heroicons/react/24/outline';
 import Cart from './Cart';
 import Wishlist from './Wishlist';
+import MiniCart from './MiniCart';
 import { getCurrentUser, logout, isAdmin } from '../lib/auth';
 
 const Header = () => {
@@ -229,8 +230,8 @@ const Header = () => {
         )}
       </div>
 
-      {/* Cart */}
-      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      {/* Mini Cart */}
+      <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       
       {/* Wishlist */}
       {user && (

@@ -1,6 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as cartWishlist from './cart-wishlist-api';
 import { chatbotResponsesHandler } from './chatbot-api';
+import * as cartApi from './cart-api';
+import * as checkoutApi from './checkout-api';
 
 export async function routeRequest(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const path = event.path || '';
@@ -49,6 +51,69 @@ export async function routeRequest(event: APIGatewayProxyEvent): Promise<APIGate
     }
     if (method === 'GET' && path.startsWith('/api/wishlist/shared/')) {
       return cartWishlist.getSharedWishlistHandler(event);
+    }
+  }
+
+  // Cart API routes
+  if (path.startsWith('/api/cart')) {
+    if (method === 'GET' && path === '/api/cart') {
+      return cartApi.getCartHandler(event);
+    }
+    if ((method === 'POST' || method === 'PATCH') && path === '/api/cart') {
+      return cartApi.updateCartHandler(event);
+    }
+    if (method === 'DELETE' && path.startsWith('/api/cart/')) {
+      return cartApi.deleteCartItemHandler(event);
+    }
+    if (method === 'POST' && path === '/api/cart/coupon') {
+      return cartApi.applyCouponHandler(event);
+    }
+  }
+
+  // Address API routes
+  if (path.startsWith('/api/addresses')) {
+    if (method === 'GET' && path === '/api/addresses') {
+      return checkoutApi.getAddressesHandler(event);
+    }
+    if (method === 'POST' && path === '/api/addresses') {
+      return checkoutApi.createAddressHandler(event);
+    }
+    if (method === 'DELETE' && path.startsWith('/api/addresses/')) {
+      return checkoutApi.deleteAddressHandler(event);
+    }
+  }
+
+  // Shipping API routes
+  if (path.startsWith('/api/shipping')) {
+    if (method === 'GET' && path.startsWith('/api/shipping')) {
+      return checkoutApi.getShippingOptionsHandler(event);
+    }
+  }
+
+  // Payment API routes
+  if (path.startsWith('/api/payments')) {
+    if (method === 'POST' && path === '/api/payments/mock') {
+      return checkoutApi.mockPaymentHandler(event);
+    }
+  }
+
+  // Order API routes
+  if (path.startsWith('/api/orders')) {
+    if (method === 'POST' && path === '/api/orders') {
+      return checkoutApi.createOrderHandler(event);
+    }
+    if (method === 'GET' && path.startsWith('/api/orders/') && !path.includes('/invoice')) {
+      return checkoutApi.getOrderHandler(event);
+    }
+    if (method === 'GET' && path.includes('/invoice')) {
+      return checkoutApi.getOrderInvoiceHandler(event);
+    }
+  }
+
+  // Notification API routes
+  if (path.startsWith('/api/notifications')) {
+    if (method === 'POST' && path === '/api/notifications/send-order-email') {
+      return checkoutApi.sendOrderEmailHandler(event);
     }
   }
 
