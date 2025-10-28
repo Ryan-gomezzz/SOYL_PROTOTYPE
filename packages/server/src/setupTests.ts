@@ -1,6 +1,8 @@
 // Jest setup file for additional configuration
 // This file is run before each test file
 
+import { jest } from '@jest/globals';
+
 // Mock environment variables
 process.env.AWS_REGION = 'us-east-1';
 process.env.DDB_TABLE = 'test-table';
@@ -14,10 +16,10 @@ const mockSend = jest.fn().mockResolvedValue({
   Item: undefined,
 });
 
-const mockGetCommand = jest.fn((params) => params);
-const mockPutCommand = jest.fn((params) => params);
-const mockUpdateCommand = jest.fn((params) => params);
-const mockDeleteCommand = jest.fn((params) => params);
+const mockGetCommand = jest.fn((params: any) => params);
+const mockPutCommand = jest.fn((params: any) => params);
+const mockUpdateCommand = jest.fn((params: any) => params);
+const mockDeleteCommand = jest.fn((params: any) => params);
 
 jest.mock('@aws-sdk/lib-dynamodb', () => ({
   DynamoDBDocumentClient: {
