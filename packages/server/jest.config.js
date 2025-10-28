@@ -12,4 +12,8 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'js', 'json'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  testTimeout: 10000,
+  moduleNameMapper: {
+    '^@aws-sdk/(.*)$': '<rootDir>/node_modules/@aws-sdk/$1',
+  },
 };

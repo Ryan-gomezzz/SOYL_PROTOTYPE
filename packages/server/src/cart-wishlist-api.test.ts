@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import {
   getCartHandler,
   addItemHandler,
@@ -6,6 +6,25 @@ import {
   getWishlistHandler,
   shareWishlistHandler
 } from './cart-wishlist-api';
+
+// Mock AWS SDK before importing the module
+jest.mock('@aws-sdk/client-dynamodb', () => ({
+  DynamoDBClient: jest.fn(),
+}));
+
+jest.mock('@aws-sdk/lib-dynamodb', () => {
+  const mockSend = jest.fn();
+  return {
+    DynamoDBDocumentClient: {
+      from: jest.fn(() => ({ send: mockSend })),
+    },
+    GetCommand: jest.fn((params) => params),
+    PutCommand: jest.fn((params) => params),
+    UpdateCommand: jest.fn((params) => params),
+    DeleteCommand: jest.fn((params) => params),
+    __mockSend: mockSend,
+  };
+});
 
 // Mock event factory
 const createMockEvent = (path: string, method: string, body?: any, userId?: string) => ({
