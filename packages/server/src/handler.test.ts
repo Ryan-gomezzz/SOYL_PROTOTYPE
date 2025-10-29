@@ -1,4 +1,6 @@
- import { handler } from './handler';
+ /// <reference types="jest" />
+/// <reference types="node" />
+import { handler } from './handler';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 // Mock AWS SDK clients
@@ -264,8 +266,9 @@ describe('Lambda Handler', () => {
 
   it('should work without API keys (mock mode)', async () => {
     // Mock no API keys available by making secrets client throw
-    const { SecretsManagerClient } = require('@aws-sdk/client-secrets-manager');
-    SecretsManagerClient.mockImplementation(() => ({
+    const secretsModule = await import('@aws-sdk/client-secrets-manager');
+    const { SecretsManagerClient } = secretsModule;
+    (SecretsManagerClient as jest.Mock).mockImplementation(() => ({
       send: jest.fn().mockRejectedValue(new Error('Secret not found'))
     }));
 
