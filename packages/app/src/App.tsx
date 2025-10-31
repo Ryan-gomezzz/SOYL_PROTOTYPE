@@ -19,6 +19,7 @@ const Pricing = lazy(() => import('./pages/Pricing'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Login = lazy(() => import('./pages/Login'));
 const Catalog = lazy(() => import('./pages/Catalog'));
+const SoylRd = lazy(() => import('./pages/SoylRd'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'));
@@ -50,6 +51,7 @@ function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/login" element={<Login />} />
             <Route path="/catalog" element={<Catalog />} />
+            <Route path="/soyl-rd" element={<SoylRd />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />

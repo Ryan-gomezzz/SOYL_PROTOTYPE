@@ -27,8 +27,15 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><Link to="/studio" className="text-soyl-silver hover:text-soyl-gold text-sm transition-colors">Studio</Link></li>
               <li><Link to="/about" className="text-soyl-silver hover:text-soyl-gold text-sm transition-colors">About</Link></li>
-              <li><Link to="/careers" className="text-soyl-silver hover:text-soyl-gold text-sm transition-colors">Careers</Link></li>
-              <li><Link to="/pricing" className="text-soyl-silver hover:text-soyl-gold text-sm transition-colors">Pricing</Link></li>
+              <li>
+                <a 
+                  href="mailto:jobs@soyl.company" 
+                  className="text-soyl-silver hover:text-soyl-gold text-sm transition-colors"
+                >
+                  Careers
+                </a>
+              </li>
+              <li><Link to="/soyl-rd" className="text-soyl-silver hover:text-soyl-gold text-sm transition-colors">SOIL R&D</Link></li>
             </ul>
           </div>
 
