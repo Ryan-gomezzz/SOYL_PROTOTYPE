@@ -57,7 +57,8 @@ const Header = () => {
     { name: '3D Studio', href: '/design-studio-3d' },
     { name: 'Catalog', href: '/catalog' },
     { name: 'About', href: '/about' },
-    { name: 'SOIL R&D', href: '/soyl-rd', isPill: true },
+    { name: 'Careers', href: '/careers' },
+    { name: 'Pricing', href: '/pricing' },
   ];
 
   return (
@@ -84,9 +85,7 @@ const Header = () => {
                 key={item.name}
                 to={item.href}
                 className={`text-sm font-medium transition-colors ${
-                  item.isPill
-                    ? 'px-3 py-1 rounded border border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--accent)]/10'
-                    : location.pathname === item.href
+                  location.pathname === item.href
                     ? 'text-soyl-gold'
                     : 'text-soyl-silver hover:text-soyl-white'
                 }`}
@@ -178,9 +177,7 @@ const Header = () => {
                   key={item.name}
                   to={item.href}
                   className={`text-sm font-medium transition-colors ${
-                    item.isPill
-                      ? 'px-3 py-1 rounded border border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--accent)]/10 inline-block w-fit'
-                      : location.pathname === item.href
+                    location.pathname === item.href
                       ? 'text-soyl-gold'
                       : 'text-soyl-silver hover:text-soyl-white'
                   }`}

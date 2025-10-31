@@ -30,59 +30,8 @@ export default function Login() {
   const [stage, setStage] = useState<"signUp" | "confirm" | "signIn">("signIn");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  
-  // Client-side validation
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password: string): boolean => {
-    return password.length >= 8;
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    if (errors.email && validateEmail(value)) {
-      setErrors({ ...errors, email: undefined });
-    }
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPassword(value);
-    if (errors.password && validatePassword(value)) {
-      setErrors({ ...errors, password: undefined });
-    }
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: { email?: string; password?: string } = {};
-    
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!validateEmail(email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-    
-    if (stage !== "confirm") {
-      if (!password) {
-        newErrors.password = "Password is required";
-      } else if (!validatePassword(password)) {
-        newErrors.password = "Password must be at least 8 characters";
-      }
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   async function signUp() {
-    if (!validateForm()) return;
-    
     setLoading(true);
     setMessage("");
     
@@ -119,8 +68,6 @@ export default function Login() {
   }
 
   async function signIn() {
-    if (!validateForm()) return;
-    
     setLoading(true);
     setMessage("");
     
@@ -172,15 +119,11 @@ export default function Login() {
             <input 
               type="email"
               value={email} 
-              onChange={handleEmailChange}
-              onBlur={validateForm}
+              onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className={`input-field w-full ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'focus:border-[var(--accent)] focus:ring-[var(--accent)]'}`}
+              className="input-field w-full"
               disabled={loading}
             />
-            {errors.email && (
-              <p className="text-red-400 text-sm mt-1">{errors.email}</p>
-            )}
           </div>
 
           {stage !== "confirm" && (
@@ -189,15 +132,11 @@ export default function Login() {
               <input 
                 type="password" 
                 value={password} 
-                onChange={handlePasswordChange}
-                onBlur={validateForm}
+                onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`input-field w-full ${errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'focus:border-[var(--accent)] focus:ring-[var(--accent)]'}`}
+                className="input-field w-full"
                 disabled={loading}
               />
-              {errors.password && (
-                <p className="text-red-400 text-sm mt-1">{errors.password}</p>
-              )}
             </div>
           )}
 
