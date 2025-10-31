@@ -47,23 +47,22 @@
 }
 
 .cursor-dot {
-  width: 10px;
-  height: 10px;
-  background-color: var(--accent, #c0c0c8);
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-primary, #fff);
   border-radius: 50%;
   transform-origin: center center;
-  transition: transform 60ms ease-out,
+  transition: transform 0.1s cubic-bezier(0.22, 1, 0.36, 1),
               background-color 0.2s ease,
               width 0.2s ease,
               height 0.2s ease;
   translate: -50% -50%;
-  box-shadow: 0 0 8px rgba(192, 192, 200, 0.5);
 }
 
 .cursor-ring {
   width: 32px;
   height: 32px;
-  border: 1px solid var(--accent, rgba(192, 192, 200, 0.5));
+  border: 2px solid var(--color-accent, rgba(255, 255, 255, 0.5));
   border-radius: 50%;
   transform-origin: center center;
   transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1),
@@ -184,10 +183,10 @@
    ============================================ */
 
 .theme-dark .cursor-dot {
-  background-color: var(--accent, #c0c0c8);
+  background-color: var(--color-accent, #fff);
 }
 
 .theme-dark .cursor-ring {
-  border-color: var(--accent, rgba(192, 192, 200, 0.6));
+  border-color: var(--color-primary, rgba(255, 255, 255, 0.6));
 }
 
